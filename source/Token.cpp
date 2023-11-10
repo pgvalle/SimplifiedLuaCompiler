@@ -36,7 +36,7 @@ void Token::print() const {
   case CONCAT:
     printf("<..>");
     break;
-  case KW_LIST_BEGIN ... KW_LIST_END: // actually BEGIN+1...END-1
+  case KW_ENUM_BEGIN ... KW_ENUM_END: // actually BEGIN+1...END-1
     printf("<kw, %s>", KEYWORDS[attrib]);
     break;
   case EOTS:
@@ -45,4 +45,6 @@ void Token::print() const {
   default: // tokens that are a single ascii character
     printf("<%c>", name);
   }
+
+  printf("\n");
 }

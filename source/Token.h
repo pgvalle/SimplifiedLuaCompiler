@@ -2,7 +2,7 @@
 
 #include "Keywords.h"
 
-#define KW(kw) kw
+#define KW(kw) KW_##kw
 // the remaining token names that are not here are ascii characters
 // and don't match any other token beginning 
 enum TokenName {
@@ -12,9 +12,9 @@ enum TokenName {
   // ???
   CONCAT,
 
-  KW_LIST_BEGIN = 200,
+  KW_ENUM_BEGIN = 200,
     KW_LIST
-  KW_LIST_END,
+  KW_ENUM_END,
 
   EOTS // End Of Token Stream
 };

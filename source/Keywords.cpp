@@ -4,4 +4,3 @@
 const char* KEYWORDS[] = {
   KW_LIST
 };
-#undef KW

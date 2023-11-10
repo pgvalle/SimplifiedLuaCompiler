@@ -1,0 +1,8 @@
+#pragma once
+
+#define KW_LIST\
+  KW(AND), KW(BREAK), KW(DO), KW(ELSE), KW(ELSEIF), KW(END), KW(FALSE),\
+  KW(FOR), KW(FUNCTION), KW(IF), KW(IN), KW(LOCAL), KW(NIL), KW(NOT),\
+  KW(OR), KW(REPEAT), KW(RETURN), KW(THEN), KW(TRUE), KW(UNTIL), KW(WHILE),
+
+extern const char* KEYWORDS[];

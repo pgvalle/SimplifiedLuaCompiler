@@ -23,4 +23,4 @@ $(BUILDDIR):
 
 # Remove object files and the executable
 clean:
-	rm -rf $(BUILDDIR)/*.o $(EXECUTABLE)
+	rm -rf $(BUILDDIR) $(EXECUTABLE)

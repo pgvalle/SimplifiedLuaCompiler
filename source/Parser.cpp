@@ -2,7 +2,7 @@
 #include <algorithm>
 
 Parser::Parser(const char* filepath) : lex(filepath) {
-  tk = lex.next_token();
+  tk = lex.next_token(); // first token ready
 }
 
 void Parser::log_token_name(TokenName name) const {
@@ -33,9 +33,9 @@ void Parser::log_token_name(TokenName name) const {
   }
 }
 
-void Parser::log_and_skip_error(std::vector<TokenName>&& syncs) {
+void Parser::log_and_skip_error(TokenNameList&& syncs) {
   // print error here
-  printf("Got "); tk.print(); printf(".\n");
+  printf("\n  Got "); tk.print(); printf(".\n");
 
   // skip tokens until found one that is inside sync set
   const auto begin = syncs.begin(), end = syncs.end();
@@ -44,12 +44,64 @@ void Parser::log_and_skip_error(std::vector<TokenName>&& syncs) {
   } while (std::find(begin, end, tk.name) == end);
 }
 
+void Parser::block() {
+  while (!tk.is_last()) {
+    statement();
+    if (tk.name == ';') {
+      tk = lex.next_token();
+    } else {
+      printf("Error: Expected <;>.");
+      log_and_skip_error({});
+    }
+  }
+}
+
+void Parser::statement() {
+
+}
+
+void Parser::expressions() {
+  // expression();
+  while (tk.name == ',') {
+    // expression();
+  }
+}
+
 void Parser::arguments() {
-  
+  switch (tk.name) {
+  case '(':
+    tk = lex.next_token();
+    if (tk.name == ')') {
+      tk = lex.next_token();
+    } else {
+      expressions();
+      if (tk.name == ')') {
+        tk = lex.next_token();
+      } else {
+        printf("Error: expected <)>.");
+        log_and_skip_error({ TokenName(')') });
+      }
+    }
+    break;
+  case '{':
+
+    break;
+  default:
+    printf("Error: expected <{> or <(>.");
+    log_and_skip_error({ TokenName('{'), TokenName('(') });
+  }
 }
 
 void Parser::identifiers() {
-  
+  do {
+    // next id in list
+    if (tk.name == IDENTIFIER) {
+      tk = lex.next_token();
+    } else {
+      printf("Error: Expected <id>.");
+      log_and_skip_error({ IDENTIFIER }); // First (Ids2) = { ',', & }
+    }
+  } while (tk.name == ',');
 }
 
 void Parser::parse() {

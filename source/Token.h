@@ -33,5 +33,7 @@ struct Token {
   Token();
   Token(int name_, int attrib_);
 
+  bool is_last() const;
+
   void print() const;
 };

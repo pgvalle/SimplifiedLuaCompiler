@@ -11,6 +11,10 @@ Token::Token(int name_, int attrib_) {
   attrib = attrib_;
 }
 
+bool Token::is_last() const {
+  return name == INVALID || name == EOTS;
+}
+
 void Token::print() const {
   // simply for pretty printing relops
   static const char* RELOPS[] = {

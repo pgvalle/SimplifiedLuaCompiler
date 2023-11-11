@@ -1,6 +1,6 @@
 # Chatgpt generated this file. I just tweaked it a little bit.
 
-CC := g++
+CC := c++
 CFLAGS := -Wall -Werror
 SRCDIR := source
 BUILDDIR := build
@@ -14,13 +14,11 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $^ -o $@
 
 # Compile individual object files
-$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp $(BUILDDIR)
+$(BUILDDIR)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p $(BUILDDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Create build directory if it doesn't exist
-$(BUILDDIR):
-	mkdir -p $@
-
 # Remove object files and the executable
+.PHONY: clean
 clean:
 	rm -rf $(BUILDDIR) $(EXECUTABLE)

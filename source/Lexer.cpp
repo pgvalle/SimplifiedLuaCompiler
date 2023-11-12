@@ -44,13 +44,13 @@ void Lexer::skip_invalid() {
     patterns.find(c) == std::string::npos);
 }
 
-bool is_useless_char(char c) {
+bool is_spacer(char c) {
   return (c == ' ' || (iscntrl(c) && c != '\0'));
 }
 
 void Lexer::skip_spacers() {
   char c = code[i];
-  while (is_useless_char(c)) {
+  while (is_spacer(c)) {
     c = next_char();
   }
 }
@@ -228,10 +228,12 @@ Token Lexer::next_token() {
   case '\0':
     return Token(EOTS, 0, cl, cc);
   default:
-    const std::string s = "(){}[]+*/^:,;";
-    if (s.find(code[i]) != s.npos) { // specific characters
+    // tokens of "size" 1 which don't match the beginning of any other token
+    const std::string str = "(){}[]+*/^:,;";
+    const size_t pos = str.find(code[i]);
+    if (pos != str.npos) {
       next_char();
-      return Token(code[i - 1], 0, cl, cc);
+      return Token(str[pos], 0, cl, cc);
     }
   }
   // nothing that should be recognized.

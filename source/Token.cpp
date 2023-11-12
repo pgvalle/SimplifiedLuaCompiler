@@ -1,14 +1,18 @@
 #include "Token.h"
-#include <stdio.h>
+#include <cstdio>
 
 Token::Token() {
   name = INVALID;
   attrib = 0;
+  line = 1;
+  column = 1;
 }
 
-Token::Token(int name_, int attrib_) {
+Token::Token(int name_, int attrib_, size_t line_, size_t column_) {
   name = name_;
   attrib = attrib_;
+  line = line_;
+  column = column_;
 }
 
 bool Token::is_last() const {
@@ -50,5 +54,5 @@ void Token::print() const {
     printf("<%c>", name);
   }
 
-  printf("\n");
+  printf(" at (%lu, %lu)\n", line, column);
 }

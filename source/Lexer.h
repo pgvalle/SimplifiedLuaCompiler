@@ -8,8 +8,10 @@
 class Lexer {
 private:
   char* code;
-  size_t i, line;
+  size_t i, line, column;
   std::unordered_map<std::string, size_t> symbols;
+
+  char next_char();
   
   void skip_spacers();
   void skip_comment();

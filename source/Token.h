@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include "Keywords.h"
 
 #define KW(kw) KW_##kw
@@ -29,9 +30,10 @@ enum RelOp {
 struct Token {
   int name;
   int attrib;
+  size_t line, column;
 
   Token();
-  Token(int name_, int attrib_);
+  Token(int name, int attrib, size_t line, size_t column);
 
   bool is_last() const;
 

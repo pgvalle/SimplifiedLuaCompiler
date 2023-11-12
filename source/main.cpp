@@ -7,8 +7,12 @@ int main(int argc, char** argv) {
   }
 
   try {
-    Parser parser(argv[1]);
-    parser.parse();
+    Lexer lex(argv[1]);
+    Token tk;
+    do {
+      tk = lex.next_token();
+      tk.print();
+    } while (!tk.is_last());
   } catch (const std::string& str) {
     printf("Fatal error: %s\n", str.c_str());
   }

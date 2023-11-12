@@ -14,66 +14,71 @@ Lexer::Lexer(const char* filepath) {
   const size_t file_len = ftell(file);
   fseek(file, 0, SEEK_SET);
   // read all content
-  code = new char[file_len + 1]();
-  fread(code, 1, file_len, file);
+  code = new char[file_len]();
+  fread(code, 1, file_len - 1, file);
   fclose(file);
 
   i = 0;
   line = 1;
+  column = 1;
 }
 
 Lexer::~Lexer() {
   delete code;
 }
 
+char Lexer::next_char() {
+  const bool eol = (code[++i] == '\n');
+  // update line and column accordingly
+  line += size_t(eol);
+  column = (eol ? 0 : (column + 1));
+  return code[i];
+}
+
+bool is_useless_char(char c) {
+  return (c == ' ' || (iscntrl(c) && c != '\0'));
+}
+
 void Lexer::skip_spacers() {
-  // one state only
   char c = code[i];
-  bool is_spacer = (c == ' ' || c == '\n');
-  while (is_spacer) {
-    line += size_t(c == '\n');
-    // get next character and check again
-    c = code[++i];
-    is_spacer = (c == ' ' || c == '\n');
+  while (is_useless_char(c)) {
+    c = next_char();
   }
 }
 
 void Lexer::skip_comment() {
-  int comment_nesting = 0, state = 0;
-  for (char c = code[++i]; c; c = code[++i]) {
+  uint8_t comment_nesting = 0, state = 0;
+  for (char c = next_char(); c; c = next_char()) {
     switch (state) {
     case 0: // start
       if (c == '[') { // may be a big comment
         state = 1;
+      } else if (c == '\n') { // end of comment
+        next_char();
+        return;
       } else { // one line comment
         state = 2;
-        i--;
-        continue; // current character might be \n already
       }
       break;
     case 1: // check if big comment
       if (c == '[') { // it's a big comment
         log("big ");
-        comment_nesting++;
+        comment_nesting = 1;
         state = 3;
+      } else if (c == '\n') { // end of comment
+        next_char();
+        return;
       } else { // one line comment
         state = 2;
-        i--;
-        continue; // current character might be \n already
       }
       break;
     case 2:  // skip one line comment
       if (c == '\n') {
-        i++;
+        next_char();
         return;
       }
       break;
     case 3: // big comment. Nesting may increase or decrease
-      if (comment_nesting == 0) { // end of big comment
-        i++;
-        return;
-      }
-      // still opened
       if (c == '[') { // nesting may increase
         state = 4;
       } else if (c == ']') { // nesting may decrease
@@ -86,14 +91,21 @@ void Lexer::skip_comment() {
         state = 3;
       } else if (c == ']') { // nesting may decrease
         state = 5;
+      } else {
+        state = 3;
       }
       break;
     case 5: // Nesting may decrease
       if (c == ']') { // nesting decreased
-        comment_nesting--;
+        if (--comment_nesting == 0) { // end of big comment
+          next_char();
+          return;
+        }
         state = 3;
       } else if (c == '[') { // nesting may increase
         state = 4;
+      } else {
+        state = 3;
       }
       break;
     }
@@ -101,16 +113,17 @@ void Lexer::skip_comment() {
 }
 
 Token Lexer::next_id_or_kw() {
+  size_t l = line, c = column;
   // read and store id
   std::string id;
-  for (char c = code[i]; isalnum(c); c = code[++i]) {
+  for (char c = code[i]; isalnum(c); c = next_char()) {
     id += c;
   }
   // check if it's a keyword. It might be.
   const size_t kw_enum_len = KW_ENUM_END - KW_ENUM_BEGIN - 1;
   for (size_t j = 0; j < kw_enum_len; j++) {
     if (strcmp(id.c_str(), KEYWORDS[j]) == 0) {
-      return Token(j + KW_ENUM_BEGIN + 1, j);
+      return Token(j + KW_ENUM_BEGIN + 1, j, l, c);
     }
   }
   // put id in symbol table if not there
@@ -118,27 +131,28 @@ Token Lexer::next_id_or_kw() {
   if (symbols.find(id) == symbols.end()) {
     symbols.insert({ id, symbol_table_line++ });
   }
-  return Token(IDENTIFIER, symbols[id]);
+  return Token(IDENTIFIER, symbols[id], l, c);
 }
 
 Token Lexer::next_number() {
+  size_t l = line, c = column;
   int number = 0;
-  for (char c = code[i]; isdigit(c); c = code[++i]) {
+  for (char c = code[i]; isdigit(c); c = next_char()) {
     number = 10 * number + int(c - '0');
   }
-  return Token(NUMBER, number);
+  return Token(NUMBER, number, l, c);
 }
 
 Token Lexer::next_string() {
-  int state = 0;
-  for (char c = code[++i]; c; c = code[++i]) {
+  size_t l = line, c = column, state = 0;
+  for (char c = next_char(); c; c = next_char()) {
     switch (state) {
     case 0: // reading string
       if (c == '\\') { // control character code comming
         state = 1;
       } else if (c  == '"') {
-        i++;
-        return Token(STRING, line);
+        next_char();
+        return Token(STRING, l, l, c);
       }
       break;
     case 1: // skip control character
@@ -147,13 +161,14 @@ Token Lexer::next_string() {
     }
   }
 
-  return Token(INVALID, 0);
+  return Token(INVALID, 0, l, c);
 }
 
 Token Lexer::next_token() {
   start:
   skip_spacers();
 
+  size_t l = line, c = column;
   switch (code[i]) { 
   case 'A' ... 'Z':
   case 'a' ... 'z':
@@ -176,50 +191,51 @@ Token Lexer::next_token() {
   case ':':
   case ',':
   case ';':
-      return Token(code[i++], 0);
+    next_char();
+    return Token(code[i - 1], 0, l, c);
   case '-':
-    if (code[++i] == '-') { // it's a comment
+    if (next_char() == '-') { // it's a comment
       skip_comment();
-      log("comment\n");
+      log("comment at (%lu %lu)\n", l, c);
       goto start; // go back to start
     }
     // it's the - sign
-    return Token('-', 0);
+    return Token('-', 0, l, c);
   case '.': // concat operator or scope operator
-    if (code[++i] == '.') { // ..
-      i++;
-      return Token(CONCAT, 0);
+    if (next_char() == '.') { // ..
+      next_char();
+      return Token(CONCAT, 0, l, c);
     }
-    return Token('.', 0);
+    return Token('.', 0, l, c);
   case '=': // logical operators
-    if (code[++i] == '=') {
-      i++;
-      return Token(RELOP, EQ);
+    if (next_char() == '=') {
+      next_char();
+      return Token(RELOP, EQ, l, c);
     }
-    return Token('=', 0);
+    return Token('=', 0, l, c);
   case '~':
-    if (code[++i] == '=') {
-      i++;
-      return Token(RELOP, NE);
+    if (next_char() == '=') {
+      next_char();
+      return Token(RELOP, NE, l, c);
     }
     break; // '~' is unknown to the lexer
   case '<':
-    if (code[++i] == '=') {
-      i++;
-      return Token(RELOP, LE);
+    if (next_char() == '=') {
+      next_char();
+      return Token(RELOP, LE, l, c);
     }
-    return Token(RELOP, LT);
+    return Token(RELOP, LT, l, c);
   case '>':
-    if (code[++i] == '=') {
-      i++;
-      return Token(RELOP, GE);
+    if (next_char() == '=') {
+      next_char();
+      return Token(RELOP, GE, l, c);
     }
-    return Token(RELOP, GT);
+    return Token(RELOP, GT, l, c);
   }
   // stream may be over
   if (code[i] == '\0') {
-    return Token(EOTS, 0);
+    return Token(EOTS, 0, l, c);
   }
   // its nothing that was expected or end of code
-  return Token(INVALID, 0);
+  return Token(INVALID, 0, l, c);
 }

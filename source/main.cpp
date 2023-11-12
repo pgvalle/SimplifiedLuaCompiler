@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
     do {
       tk = lex.next_token();
       tk.print();
-    } while (!tk.is_last());
+    } while (tk.name != EOTS);
   } catch (const std::string& str) {
     printf("Fatal error: %s\n", str.c_str());
   }

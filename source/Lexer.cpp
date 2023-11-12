@@ -236,6 +236,6 @@ Token Lexer::next_token() {
   if (code[i] == '\0') {
     return Token(EOTS, 0, l, c);
   }
-  // its nothing that was expected or end of code
+  // its nothing that was expected
   return Token(INVALID, 0, l, c);
 }

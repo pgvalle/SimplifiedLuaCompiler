@@ -13,6 +13,7 @@ private:
 
   char next_char();
   
+  void skip_invalid();
   void skip_spacers();
   void skip_comment();
 

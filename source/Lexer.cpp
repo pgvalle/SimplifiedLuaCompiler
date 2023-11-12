@@ -35,6 +35,15 @@ char Lexer::next_char() {
   return code[i];
 }
 
+void Lexer::skip_invalid() {
+  const std::string patterns = " \n\t\0\"_(){}[]+*/^:,;-~=<>";
+  char c;
+  do {
+    c = next_char();
+  } while (!isdigit(c) && !isalnum(c) &&
+    patterns.find(c) == std::string::npos);
+}
+
 bool is_useless_char(char c) {
   return (c == ' ' || (iscntrl(c) && c != '\0'));
 }
@@ -62,7 +71,6 @@ void Lexer::skip_comment() {
       break;
     case 1: // check if big comment
       if (c == '[') { // it's a big comment
-        log("big ");
         comment_nesting = 1;
         state = 3;
       } else if (c == '\n') { // end of comment
@@ -113,7 +121,7 @@ void Lexer::skip_comment() {
 }
 
 Token Lexer::next_id_or_kw() {
-  size_t l = line, c = column;
+  const size_t cl = line, cc = column;
   // read and store id
   std::string id;
   for (char c = code[i]; isalnum(c); c = next_char()) {
@@ -123,7 +131,7 @@ Token Lexer::next_id_or_kw() {
   const size_t kw_enum_len = KW_ENUM_END - KW_ENUM_BEGIN - 1;
   for (size_t j = 0; j < kw_enum_len; j++) {
     if (strcmp(id.c_str(), KEYWORDS[j]) == 0) {
-      return Token(j + KW_ENUM_BEGIN + 1, j, l, c);
+      return Token(j + KW_ENUM_BEGIN + 1, j, cl, cc);
     }
   }
   // put id in symbol table if not there
@@ -131,20 +139,21 @@ Token Lexer::next_id_or_kw() {
   if (symbols.find(id) == symbols.end()) {
     symbols.insert({ id, symbol_table_line++ });
   }
-  return Token(IDENTIFIER, symbols[id], l, c);
+  return Token(IDENTIFIER, symbols[id], cl, cc);
 }
 
 Token Lexer::next_number() {
-  size_t l = line, c = column;
+  const size_t cl = line, cc = column;
   int number = 0;
   for (char c = code[i]; isdigit(c); c = next_char()) {
     number = 10 * number + int(c - '0');
   }
-  return Token(NUMBER, number, l, c);
+  return Token(NUMBER, number, cl, cc);
 }
 
 Token Lexer::next_string() {
-  size_t l = line, c = column, state = 0;
+  const size_t cl = line, cc = column;
+  uint8_t state = 0;
   for (char c = next_char(); c; c = next_char()) {
     switch (state) {
     case 0: // reading string
@@ -152,7 +161,7 @@ Token Lexer::next_string() {
         state = 1;
       } else if (c  == '"') {
         next_char();
-        return Token(STRING, l, l, c);
+        return Token(STRING, 0, cl, cc);
       }
       break;
     case 1: // skip control character
@@ -161,81 +170,71 @@ Token Lexer::next_string() {
     }
   }
 
-  return Token(INVALID, 0, l, c);
+  return Token(INVALID, 0, cl, cc);
 }
 
 Token Lexer::next_token() {
   start:
   skip_spacers();
 
-  size_t l = line, c = column;
-  switch (code[i]) { 
-  case 'A' ... 'Z':
-  case 'a' ... 'z':
+  const size_t cl = line, cc = column; // current line/column -> cl/cc
+  switch (code[i]) {
   case '_':
+  case 'a' ... 'z':
+  case 'A' ... 'Z':
     return next_id_or_kw();
+    break;
   case '0' ... '9':
     return next_number();
   case '"':
     return next_string();
-  case '(':
-  case ')':
-  case '{':
-  case '}':
-  case '[':
-  case ']':
-  case '+':
-  case '*':
-  case '/':
-  case '^':
-  case ':':
-  case ',':
-  case ';':
-    next_char();
-    return Token(code[i - 1], 0, l, c);
   case '-':
     if (next_char() == '-') { // it's a comment
       skip_comment();
-      log("comment at (%lu %lu)\n", l, c);
       goto start; // go back to start
     }
     // it's the - sign
-    return Token('-', 0, l, c);
-  case '.': // concat operator or scope operator
+    return Token('-', 0, cl, cc);
+  case '.':
     if (next_char() == '.') { // ..
       next_char();
-      return Token(CONCAT, 0, l, c);
+      return Token(CONCAT, 0, cl, cc);
     }
-    return Token('.', 0, l, c);
-  case '=': // logical operators
+    return Token('.', 0, cl, cc);
+  case '=':
     if (next_char() == '=') {
       next_char();
-      return Token(RELOP, EQ, l, c);
+      return Token(RELOP, EQ, cl, cc);
     }
-    return Token('=', 0, l, c);
-  case '~':
-    if (next_char() == '=') {
-      next_char();
-      return Token(RELOP, NE, l, c);
-    }
-    break; // '~' is unknown to the lexer
+    return Token('=', 0, cl, cc);
   case '<':
     if (next_char() == '=') {
       next_char();
-      return Token(RELOP, LE, l, c);
+      return Token(RELOP, LE, cl, cc);
     }
-    return Token(RELOP, LT, l, c);
+    return Token(RELOP, '<', cl, cc);
   case '>':
     if (next_char() == '=') {
       next_char();
-      return Token(RELOP, GE, l, c);
+      return Token(RELOP, GE, cl, cc);
     }
-    return Token(RELOP, GT, l, c);
+    return Token(RELOP, '>', cl, cc);
+  case '~':
+    if (next_char() == '=') {
+      next_char();
+      return Token(RELOP, NE, cl, cc);
+    }
+    break;
+  case '\0':
+    return Token(EOTS, 0, cl, cc);
+  default:
+    const std::string s = "(){}[]+*/^:,;";
+    if (s.find(code[i]) != s.npos) { // specific characters
+      next_char();
+      return Token(code[i - 1], 0, cl, cc);
+    }
   }
-  // stream may be over
-  if (code[i] == '\0') {
-    return Token(EOTS, 0, l, c);
-  }
-  // its nothing that was expected
-  return Token(INVALID, 0, l, c);
+  // nothing that should be recognized.
+  skip_invalid();
+  return Token(INVALID, 0, cl, cc);
 }

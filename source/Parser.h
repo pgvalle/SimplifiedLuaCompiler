@@ -11,10 +11,11 @@ private:
   Token tk;
 
   void log_token_name(TokenName name) const;
-  void log_and_skip_error(TokenNameList&& sync_set);
+  bool find_token(const TokenNameList& syncs);
+  void log_and_skip_error(TokenNameList&& syncs);
 
   // all symbols as procedures here
-  
+  void variable_or_call();
   void block();
   void statement();
   void expressions();

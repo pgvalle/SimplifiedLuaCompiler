@@ -1,9 +1,7 @@
 #include "Parser.h"
 #include <algorithm>
 
-Parser::Parser(const char* filepath) : lex(filepath) {
-  tk = lex.next_token(); // first token ready
-}
+Parser::Parser(const char* filepath) : lex(filepath) {}
 
 void Parser::log_token_name(TokenName name) const {
   switch (name) {
@@ -33,30 +31,78 @@ void Parser::log_token_name(TokenName name) const {
   }
 }
 
-void Parser::log_and_skip_error(TokenNameList&& syncs) {
-  // print error here
-  printf("\n  Got "); tk.print(); printf(".\n");
+bool Parser::find_token(const TokenNameList& syncs) {
+  const auto it = std::find(
+    syncs.begin(), syncs.end(), tk.name
+  );
+  return (it != syncs.end() || tk.name == EOTS);
+}
 
+void Parser::log_and_skip_error(TokenNameList&& syncs) {
+  // print what token we actually got
+  printf("\n       Got "); tk.print();
   // skip tokens until found one that is inside sync set
-  const auto begin = syncs.begin(), end = syncs.end();
   do {
     tk = lex.next_token();
-  } while (std::find(begin, end, tk.name) == end);
+  } while (!find_token(syncs));
+  // show where we're at
+  printf("       Continuing from "); tk.print();
 }
 
 void Parser::block() {
-  while (!tk.is_last()) {
+  while (tk.name != EOTS) {
     statement();
     if (tk.name == ';') {
       tk = lex.next_token();
     } else {
       printf("Error: Expected <;>.");
-      log_and_skip_error({});
+      log_and_skip_error({
+        // first(Function) U First(FunctionCall)
+        KW_function, IDENTIFIER, TokenName('('),
+        // remaining
+        KW_do, KW_while, KW_if, KW_return, KW_for, KW_local
+      });
     }
   }
 }
 
 void Parser::statement() {
+  switch (tk.name) {
+  case KW_do:
+    tk = lex.next_token();
+    block();
+    if (tk.name == KW_end) {
+      tk = lex.next_token();
+    } else {
+      printf("Error: Expected <end>.");
+      log_and_skip_error({ TokenName(';') });
+    }
+    break;
+  case KW_break:
+    tk = lex.next_token();
+    break;
+  case KW_for:
+    tk = lex.next_token();
+    if (tk.name == IDENTIFIER) {
+      tk = lex.next_token();
+    } else {
+      printf("Error: Expected <id>.");
+      log_and_skip_error({
+        TokenName(','), TokenName('='), KW_in
+      });
+    }
+    // fors();
+  default:
+    if (tk.name == KW_function) {
+      tk = lex.next_token();
+      // function();
+    } else {
+      variable_or_call();
+    }
+  }
+}
+
+void Parser::variable_or_call() {
 
 }
 
@@ -105,5 +151,6 @@ void Parser::identifiers() {
 }
 
 void Parser::parse() {
-
+  tk = lex.next_token(); // first token ready
+  block();
 }

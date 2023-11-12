@@ -1,4 +1,3 @@
-.vscode/
-build/
-*.txt
-slc
+.[vV][sS][cC]ode*
+build*
+slc*

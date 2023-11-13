@@ -7,12 +7,8 @@ int main(int argc, char** argv) {
   }
 
   try {
-    Lexer lex(argv[1]);
-    Token tk;
-    do {
-      tk = lex.next_token();
-      tk.print();
-    } while (tk.name != EOTS);
+    Parser parser(argv[1]);
+    parser.parse();
   } catch (const std::string& str) {
     printf("Fatal error: %s\n", str.c_str());
   }

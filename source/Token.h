@@ -6,9 +6,9 @@
 #define KW(kw) KW_##kw
 // the remaining token names that are not here are ascii characters
 // and don't match any other token beginning 
-enum TokenName {
+enum TkName {
   // basic???
-  INVALID = 0, IDENTIFIER, RELOP, NUMBER, STRING,
+  INVALID = 0, ID, RELOP, NUMBER, STRING,
   
   // ???
   CONCAT,

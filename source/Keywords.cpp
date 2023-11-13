@@ -1,6 +1,6 @@
 #include "Keywords.h"
 
 #define KW(kw) #kw
-const char* KEYWORDS[] = {
+const std::string KEYWORDS[] = {
   KW_LIST
 };

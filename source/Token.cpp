@@ -25,7 +25,7 @@ void Token::print() const {
   case INVALID:
     printf("<ERROR>");
     break;
-  case IDENTIFIER:
+  case ID:
     printf("<id, %d>", attrib);
     break;
   case RELOP:
@@ -41,7 +41,7 @@ void Token::print() const {
     printf("<..>");
     break;
   case KW_ENUM_BEGIN ... KW_ENUM_END: // actually BEGIN+1...END-1
-    printf("<kw, %s>", KEYWORDS[attrib]);
+    printf("<kw, %s>", KEYWORDS[attrib].c_str());
     break;
   case EOTS:
     printf("<EOTS>");

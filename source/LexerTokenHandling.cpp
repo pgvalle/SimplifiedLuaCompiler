@@ -1,5 +1,4 @@
 #include "Lexer.h"
-#include <string.h>
 
 Token Lexer::next_id_or_kw() {
   const size_t cl = line, cc = column;

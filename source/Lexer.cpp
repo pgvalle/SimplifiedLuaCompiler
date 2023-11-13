@@ -36,12 +36,11 @@ char Lexer::next_char() {
 }
 
 void Lexer::skip_invalid() {
-  const std::string patterns = " \n\t\0\"_(){}[]+*/^:,;-~=<>";
+  const std::string str = " \n\t\0\"_(){}[]+*/^:,;-~=<>";
   char c;
   do {
     c = next_char();
-  } while (!isdigit(c) && !isalnum(c) &&
-    patterns.find(c) == std::string::npos);
+  } while (!isalnum(c) && str.find(c) == str.npos);
 }
 
 bool is_spacer(char c) {

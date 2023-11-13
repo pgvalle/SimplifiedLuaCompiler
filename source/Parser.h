@@ -5,21 +5,38 @@
 
 class Parser {
 private:
-  using TokenNameList = std::initializer_list<TokenName>;
+  using TkNameList = std::initializer_list<TkName>;
 
   Lexer lex;
   Token tk;
 
-  void log_token_name(TokenName name) const;
-  bool find_token(const TokenNameList& syncs);
-  void log_and_skip_error(TokenNameList&& syncs);
+  void fetch_next_token() {
+    tk = lex.next_token();
+  }
 
-  // all symbols as procedures here
+  bool find_token(const TkNameList& symbols) const;
+  void log_and_skip_error(TkNameList&& symbols);
+
   void variable_or_call();
+
   void block();
+
+  void do_statement();
+  void while_statement();
+  void if_statement();
+  void return_statement();
+  void for_statement();
+  void decl_statement();
   void statement();
+  
+  void function();
   void expressions();
+  void expression();
+
+  void field();
+
   void arguments();
+
   void identifiers();
 
 public:

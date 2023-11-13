@@ -13,7 +13,7 @@ bool Parser::find_token(const TkNameList& symbols) const {
 
 void Parser::log_and_skip_error(TkNameList&& symbols) {
   // print what token we actually got
-  printf("\n       Got "); tk.print();
+  printf(". But got "); tk.print();
   // skip tokens until found one that is inside sync set
   do {
     fetch_next_token();

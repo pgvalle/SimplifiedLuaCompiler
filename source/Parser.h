@@ -5,8 +5,6 @@
 
 class Parser {
 private:
-  using TkNameList = std::initializer_list<TkName>;
-
   Lexer lex;
   Token tk;
 
@@ -14,6 +12,7 @@ private:
     tk = lex.next_token();
   }
 
+  using TkNameList = std::initializer_list<TkName>;
   bool find_token(const TkNameList& symbols) const;
   void log_and_skip_error(TkNameList&& symbols);
 

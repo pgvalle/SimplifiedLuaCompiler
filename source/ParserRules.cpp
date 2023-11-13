@@ -1,15 +1,16 @@
 #include "Parser.h"
 
+// done
 void Parser::block() {
   while (tk.name != EOTS) {
     statement();
     if (tk.name == ';') {
       fetch_next_token();
     } else {
-      printf("Error: Expected <;>.");
+      printf("Error: Expected <;>");
       log_and_skip_error({
-        ID, TkName('('), KW_do, KW_while,
-        KW_if, KW_return, KW_for, KW_local, KW_function
+        KW_do, KW_while, KW_if, KW_return, KW_for,
+        KW_local, KW_function, ID, TkName('('), EOTS
       });
     }
   }
@@ -23,11 +24,36 @@ void Parser::field() {
     // mais coisa
     break;
   case ID:
+    fetch_next_token();
+    if (tk.name == '=') {
 
+    } else {
+      printf("Error: Expected <=>");
+      log_and_skip_error({});
+    }
   }
 }
 
 void Parser::function() {
+  // id ( Idsopt ) Block end
+  if (tk.name == ID) {
+    fetch_next_token();
+  } else {
+    printf("Error: Expected <=>");
+    log_and_skip_error({});
+  }
+
+  if (tk.name == '(') {
+    fetch_next_token();
+  } else {
+    printf("Error: Expected <=>");
+    log_and_skip_error({});
+  }
+
+  if (tk.name == ID) {
+    identifiers();
+  }
+
   
 }
 
@@ -57,7 +83,7 @@ void Parser::arguments() {
       if (tk.name == ')') {
         fetch_next_token();
       } else {
-        printf("Error: expected <)>.");
+        printf("Error: expected <)>");
         log_and_skip_error({});
       }
     }
@@ -73,7 +99,7 @@ void Parser::arguments() {
     }
     break;
   default:
-    printf("Error: expected <{> or <(>.");
+    printf("Error: expected <{> or <(>");
     log_and_skip_error({});
   }
 }
@@ -84,7 +110,7 @@ void Parser::identifiers() {
     if (tk.name == ID) {
       fetch_next_token();
     } else {
-      printf("Error: Expected <id>.");
+      printf("Error: Expected <id>");
       log_and_skip_error({ ID });
     }
   } while (tk.name == ',');

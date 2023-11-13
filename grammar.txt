@@ -1,5 +1,3 @@
-https://mikedevice.github.io/first-follow/
-
 Block⟶Statement ; Block
 Block⟶
 
@@ -41,5 +39,54 @@ Expressions⟶Expression
 Expression⟶not Expression Expression2
 Expression⟶- Expression Expression2
 Expression⟶PrefixExpression Expression2
-Expression⟶
+Expression⟶Function Expression2
+Expression⟶{ OptFields } Expression2
+Expression⟶nil Expression2
+Expression⟶true Expression2
+Expression⟶false Expression2
+Expression⟶number Expression2
+Expression⟶string Expression2
 
+Expression2⟶BinOp Expression Expression2
+Expression2⟶
+
+PrefixExpression⟶id PrefixExpression2
+PrefixExpression⟶( Expression ) PrefixExpression2
+
+PrefixExpression2⟶Arguments PrefixExpression2
+PrefixExpression2⟶: id Arguments PrefixExpression2
+PrefixExpression2⟶[ Expression ] PrefixExpression2
+PrefixExpression2⟶. id PrefixExpression2
+PrefixExpression2⟶
+
+OptFields⟶Fields
+OptFields⟶
+
+Fields⟶Field , Fields
+Fields⟶Field
+
+Field⟶[ Expression ] = Expression
+Field⟶id = Expression
+
+BinOp⟶bruh
+
+Variables⟶Variable , Variables
+Variables⟶Variable
+
+Variable⟶id
+Variable⟶PrefixExpression [ Expression ]
+Variable⟶PrefixExpression . id
+
+Function⟶function id ( OptFields ) Block end
+
+FunctionCall⟶PrefixExpression Arguments
+FunctionCall⟶PrefixExpression : id Arguments
+
+Arguments⟶( OptExpressions )
+Arguments⟶{ OptFields }
+
+OptIds⟶Ids
+OptIds⟶
+
+Ids⟶id , Ids
+Ids⟶id

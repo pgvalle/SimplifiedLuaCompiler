@@ -1,0 +1,45 @@
+https://mikedevice.github.io/first-follow/
+
+Block⟶Statement ; Block
+Block⟶
+
+Statement⟶Variables = Expressions
+Statement⟶FunctionCall
+Statement⟶do Block end
+Statement⟶while Expression do Block end
+Statement⟶if Expression then Block ElseIf Else end
+Statement⟶return OptExpressions
+Statement⟶break
+Statement⟶for id Fors
+Statement⟶local Declarations
+Statement⟶Function
+
+OptExpressions⟶Expressions
+OptExpressions⟶
+
+ElseIf⟶elseif Expression then Block ElseIf
+ElseIf⟶
+
+Else⟶else Block
+Else⟶
+
+Fors⟶ForIds in Expressions do Block end
+Fors⟶= Expression, Expression ForExpressions do Block end
+
+ForIds⟶, id ForIds
+ForIds⟶
+
+ForExpressions⟶, Expression
+ForExpressions⟶
+
+Declarations⟶Ids = Expressions
+Declarations⟶Function
+
+Expressions⟶Expression , Expressions
+Expressions⟶Expression
+
+Expression⟶not Expression Expression2
+Expression⟶- Expression Expression2
+Expression⟶PrefixExpression Expression2
+Expression⟶
+

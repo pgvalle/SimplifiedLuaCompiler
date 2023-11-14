@@ -1,71 +1,76 @@
 #include "Parser.h"
 
-// done (not sure)
 void Parser::do_statement() {
   block();
   if (tk.name == KW_end) {
     fetch_next_token();
   } else {
     printf("Error: Expected <kw, end>");
-    log_and_skip_error({ TkName(';') });
+    log_and_skip_error({ TkName(';') }); // Follow(Stmt)
   }
 }
 
-// almost done
 void Parser::while_statement() {
   expression();
   if (tk.name == KW_do) {
     fetch_next_token();
-    block();
   } else {
     printf("Error: Expected <kw, do>");
-    log_and_skip_error({
-      KW_do, KW_while, KW_if, KW_return, KW_for,
-      KW_local, KW_function, ID, TkName('('), EOTS
+    log_and_skip_error({ // First(Block)
+      KW_do, KW_while, KW_if, KW_return, KW_break,
+      KW_for, KW_local, KW_function, ID, TkName('(')
     });
   }
-  block();
-  if (tk.name == KW_end) {
-    fetch_next_token();
-  } else {
-    printf("Error: Expected <kw, end>");
-    log_and_skip_error({});
-  }
+  do_statement();
 }
 
-// not done
 void Parser::if_statement() {
   expression();
   if (tk.name == KW_then) {
     fetch_next_token();    
   } else {
     printf("Error: Expected <kw, then>");
-    log_and_skip_error({
-      KW_do, KW_while, KW_if, KW_return, KW_for,
-      KW_local, KW_function, ID, TkName('('), EOTS
+    log_and_skip_error({ // First(Block)
+      KW_do, KW_while, KW_if, KW_return, KW_break,
+      KW_for, KW_local, KW_function, ID, TkName('(')
     });
   }
   block();
-
-  // TODO: elseif e else faltam
-
+  while (tk.name == KW_elseif) {
+    fetch_next_token();
+    expression();
+    if (tk.name == KW_then) {
+      fetch_next_token();
+    } else {
+      printf("Error: Expected <kw, then>");
+      log_and_skip_error({ // First(block)
+        KW_do, KW_while, KW_if, KW_return, KW_for,
+        KW_local, KW_function, ID, TkName('(')
+      });
+    }
+    block();
+  }
+  // else (optional)
+  if (tk.name == KW_else) {
+    fetch_next_token();
+    block();
+  }
+  // end
   if (tk.name == KW_end) {
     fetch_next_token();
   } else {
     printf("Error: Expected <kw, end>");
-    log_and_skip_error({});
+    log_and_skip_error({ TkName(';') }); // Follow(Stmt)
   }
 }
 
-// done
 void Parser::return_statement() {
-  fetch_next_token();
-  // first(expressions)
+  // First(expressions)
   const TkNameList names = {
-    KW_not, KW_nil, KW_true, KW_function,
-    ID, TkName('-'), TkName('{'), TkName('(')
+    KW_not, KW_nil, KW_true, KW_false, KW_function, ID,
+    NUMBER, STRING, TkName('-'), TkName('{'), TkName('(')
   };
-  // if found. Then there's an expression
+  // if found, then there's an expression
   for (TkName name : names) {
     if (name == tk.name) {
       expressions();
@@ -79,31 +84,32 @@ void Parser::for_statement() {
     fetch_next_token();
   } else {
     printf("Error: Expected <id>");
-    log_and_skip_error({ TkName(','), TkName('='), KW_in });
+    log_and_skip_error({  });
   }
-  // fors();
 }
 
-// almost done
 void Parser::decl_statement() {
-  if (tk.name == ID) {
+  switch (tk.name) {
+  case ID:
     identifiers();
     if (tk.name == '=') {
       fetch_next_token();
     } else {
       printf("Error: Expected <=>");
-      log_and_skip_error({
+      log_and_skip_error({ // First(expressions)
         KW_not, KW_nil, KW_true, KW_function,
         ID, TkName('-'), TkName('{'), TkName('(')
       });
     }
     expressions();
-  } else if (tk.name == KW_function) {
+    break;
+  case KW_function:
     fetch_next_token();
     function();
-  } else {
+    break;
+  default:
     printf("Error: Expected <id> or <function>");
-    log_and_skip_error({});
+    log_and_skip_error({ TkName(';') }); // Follow(declaraction)
   }
 }
 
@@ -138,8 +144,12 @@ void Parser::statement() {
     fetch_next_token();
     function();
     break;
-  default:
-    // vars ou functioncall. Muito difícil
+  case ID:
+  case '(':
+    variables();
     break;
+  default:
+    printf("Error: Expected <;>");
+    log_and_skip_error({ TkName(';') }); // Follow(statement)
   }
 }

@@ -4,7 +4,7 @@ Block⟶Statement ; Block
 Block⟶
 
 Statement⟶Variables = Expressions
-Statement⟶FunctionCall
+Statement⟶Function
 Statement⟶do Block end
 Statement⟶while Expression do Block end
 Statement⟶if Expression then Block ElseIf Else end
@@ -12,7 +12,6 @@ Statement⟶return OptExpressions
 Statement⟶break
 Statement⟶for id Fors
 Statement⟶local Declarations
-Statement⟶Function
 
 OptExpressions⟶Expressions
 OptExpressions⟶
@@ -24,7 +23,7 @@ Else⟶else Block
 Else⟶
 
 Fors⟶ForIds in Expressions do Block end
-Fors⟶= Expression, Expression ForExpressions do Block end
+Fors⟶= Expression , Expression ForExpressions do Block end
 
 ForIds⟶, id ForIds
 ForIds⟶
@@ -55,8 +54,6 @@ Expression2⟶
 PrefixExpression⟶id PrefixExpression2
 PrefixExpression⟶( Expression ) PrefixExpression2
 
-PrefixExpression2⟶Arguments PrefixExpression2
-PrefixExpression2⟶: id Arguments PrefixExpression2
 PrefixExpression2⟶[ Expression ] PrefixExpression2
 PrefixExpression2⟶. id PrefixExpression2
 PrefixExpression2⟶
@@ -80,9 +77,6 @@ Variable⟶PrefixExpression [ Expression ]
 Variable⟶PrefixExpression . id
 
 Function⟶function id ( OptFields ) Block end
-
-FunctionCall⟶PrefixExpression Arguments
-FunctionCall⟶PrefixExpression : id Arguments
 
 Arguments⟶( OptExpressions )
 Arguments⟶{ OptFields }

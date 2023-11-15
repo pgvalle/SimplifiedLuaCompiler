@@ -76,7 +76,7 @@ Variable⟶id
 Variable⟶PrefixExpression [ Expression ]
 Variable⟶PrefixExpression . id
 
-Function⟶function id ( OptFields ) Block end
+Function⟶function id ( OptIds ) Block end
 
 Arguments⟶( OptExpressions )
 Arguments⟶{ OptFields }

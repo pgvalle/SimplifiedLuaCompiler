@@ -35,5 +35,5 @@ struct Token {
   Token();
   Token(int name, int attrib, size_t line, size_t column);
 
-  void print() const;
+  std::string name_str() const;
 };

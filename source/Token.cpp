@@ -15,40 +15,26 @@ Token::Token(int name_, int attrib_, size_t line_, size_t column_) {
   column = column_;
 }
 
-void Token::print() const {
-  // simply for pretty printing relops
-  static const char* RELOPS[] = {
-    "==", "~=", "<", ">", "<=", ">="
-  };
-
+std::string Token::name_str() const {
   switch (name) {
   case INVALID:
-    printf("<ERROR>");
-    break;
+    return "ERROR";
   case ID:
-    printf("<id, %d>", attrib);
-    break;
+    return "id";
   case RELOP:
-    printf("<relop, %s>", RELOPS[attrib - RELOP_BEGIN - 1]);
-    break;
+    return "relop";
   case NUMBER:
-    printf("<num, %d>", attrib);
-    break;
+    return "number";
   case STRING:
-    printf("<str, %d>", attrib);
-    break;
+    return "string";
   case CONCAT:
-    printf("<..>");
-    break;
+    return "..";
   case KW_ENUM_BEGIN ... KW_ENUM_END: // actually BEGIN+1...END-1
-    printf("<kw, %s>", KEYWORDS[attrib].c_str());
-    break;
+    return KEYWORDS[attrib];
   case EOTS:
-    printf("<EOTS>");
-    break;
+    return "EOTS";
   default: // tokens that are a single ascii character
-    printf("<%c>", name);
+    char c = name;
+    return &c;
   }
-
-  printf(" at (%lu, %lu)\n", line, column);
 }

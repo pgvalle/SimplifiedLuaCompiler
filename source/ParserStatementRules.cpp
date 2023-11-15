@@ -5,8 +5,7 @@ void Parser::do_statement() {
   if (tk.name == KW_end) {
     fetch_next_token();
   } else {
-    printf("Error: Expected <kw, end>");
-    log_and_skip_error({ TkName(';') }); // Follow(Stmt)
+    panic("<end>", { TkName(';') }); // follow(statement)
   }
 }
 
@@ -15,40 +14,39 @@ void Parser::while_statement() {
   if (tk.name == KW_do) {
     fetch_next_token();
   } else {
-    printf("Error: Expected <kw, do>");
-    log_and_skip_error({ // First(Block)
+    panic("<do>", {
+      // first(block) - { & }
       KW_do, KW_while, KW_if, KW_return, KW_break,
-      KW_for, KW_local, KW_function, ID, TkName('(')
+      KW_for, KW_local, KW_function, ID, TkName('('),
+      // follow(block)
+      KW_end, KW_elseif, KW_else, EOTS
     });
   }
   do_statement();
 }
 
 void Parser::if_statement() {
-  expression();
-  if (tk.name == KW_then) {
-    fetch_next_token();    
-  } else {
-    printf("Error: Expected <kw, then>");
-    log_and_skip_error({ // First(Block)
-      KW_do, KW_while, KW_if, KW_return, KW_break,
-      KW_for, KW_local, KW_function, ID, TkName('(')
-    });
-  }
-  block();
-  while (tk.name == KW_elseif) {
-    fetch_next_token();
-    expression();
+  auto then = [=]() {
     if (tk.name == KW_then) {
-      fetch_next_token();
+      fetch_next_token();    
     } else {
-      printf("Error: Expected <kw, then>");
-      log_and_skip_error({ // First(block)
-        KW_do, KW_while, KW_if, KW_return, KW_for,
-        KW_local, KW_function, ID, TkName('(')
+      panic("<then>", {
+        // first(block) - { & }
+        KW_do, KW_while, KW_if, KW_return, KW_break,
+        KW_for, KW_local, KW_function, ID, TkName('('),
+        // follow(block)
+        KW_end, KW_elseif, KW_else, EOTS
       });
     }
     block();
+  };
+
+  expression();
+  then();
+  while (tk.name == KW_elseif) {
+    fetch_next_token();
+    expression();
+    then();
   }
   // else (optional)
   if (tk.name == KW_else) {
@@ -59,23 +57,19 @@ void Parser::if_statement() {
   if (tk.name == KW_end) {
     fetch_next_token();
   } else {
-    printf("Error: Expected <kw, end>");
-    log_and_skip_error({ TkName(';') }); // Follow(Stmt)
+    panic("<end>", { TkName(';') } ); // follow(statement)
   }
 }
 
 void Parser::return_statement() {
   // First(expressions)
-  const TkNameList names = {
+  const TkNameList first_expressions = {
     KW_not, KW_nil, KW_true, KW_false, KW_function, ID,
     NUMBER, STRING, TkName('-'), TkName('{'), TkName('(')
   };
   // if found, then there's an expression
-  for (TkName name : names) {
-    if (name == tk.name) {
-      expressions();
-      break;
-    }
+  if (token_in(first_expressions)) {
+    expressions();
   }
 }
 
@@ -83,8 +77,8 @@ void Parser::for_statement() {
   if (tk.name == ID) {
     fetch_next_token();
   } else {
-    printf("Error: Expected <id>");
-    log_and_skip_error({  });
+    printf("<id>");
+    //panic({  });
   }
 }
 
@@ -95,10 +89,10 @@ void Parser::decl_statement() {
     if (tk.name == '=') {
       fetch_next_token();
     } else {
-      printf("Error: Expected <=>");
-      log_and_skip_error({ // First(expressions)
-        KW_not, KW_nil, KW_true, KW_function,
-        ID, TkName('-'), TkName('{'), TkName('(')
+      panic("<=>", {
+        KW_not, KW_nil, KW_true, KW_false,
+        KW_function, ID, NUMBER, STRING,
+        TkName('-'), TkName('{'), TkName('(')
       });
     }
     expressions();
@@ -108,8 +102,8 @@ void Parser::decl_statement() {
     function();
     break;
   default:
-    printf("Error: Expected <id> or <function>");
-    log_and_skip_error({ TkName(';') }); // Follow(declaraction)
+    // Follow(declaraction)
+    panic("<id> or <function>", { TkName(';') });
   }
 }
 
@@ -137,9 +131,11 @@ void Parser::statement() {
   case KW_for:
     fetch_next_token();
     for_statement();
+    break;
   case KW_local:
     fetch_next_token();
     decl_statement();
+    break;
   case KW_function:
     fetch_next_token();
     function();
@@ -149,7 +145,10 @@ void Parser::statement() {
     variables();
     break;
   default:
-    printf("Error: Expected <;>");
-    log_and_skip_error({ TkName(';') }); // Follow(statement)
+    panic(
+      "<do>, <while>, <if>, <return>, \
+<break>, <local>, <function>, <id>, <(>",
+      { TkName(';') }
+    );
   }
 }

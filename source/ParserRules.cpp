@@ -63,7 +63,7 @@ void Parser::field() {
     }
     expression();
   default:
-    panic("<[> or <id>", {
+    panic("<id> or <[>", {
       // follow(field)
       TkName('}'), TkName(')')
     });

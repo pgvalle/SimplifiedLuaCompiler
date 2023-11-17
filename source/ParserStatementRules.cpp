@@ -77,8 +77,44 @@ void Parser::for_statement() {
   if (tk.name == ID) {
     fetch_next_token();
   } else {
-    printf("<id>");
-    //panic({  });
+    panic("<id>", {
+      // first(forids) - { & } U follow(forids)
+      TkName('='), TkName(','), KW_in,
+      // first(expression)
+      KW_not, KW_nil, KW_true, KW_false,
+      KW_function, ID, NUMBER, STRING,
+      TkName('-'), TkName('{'), TkName('(')
+    });
+  }
+
+  switch (tk.name) {
+  case ',':
+    do {
+      fetch_next_token();
+      if (tk.name == ID) {
+        fetch_next_token();
+      } else {
+        // panic("<=>", {});
+      }
+    } while (tk.name == ',');
+  case KW_in:
+    expressions();
+    do_statement();
+    break;
+  case '=':
+    fetch_next_token();
+    expression();
+    if (tk.name == ',') {
+      fetch_next_token();
+    } else {
+      // panic("<=>", {});
+    }
+    expression();
+    // for_expressions();
+    do_statement();
+    break;
+  default:
+    panic("<=>", {});
   }
 }
 
@@ -90,6 +126,7 @@ void Parser::decl_statement() {
       fetch_next_token();
     } else {
       panic("<=>", {
+        // first(expression)
         KW_not, KW_nil, KW_true, KW_false,
         KW_function, ID, NUMBER, STRING,
         TkName('-'), TkName('{'), TkName('(')

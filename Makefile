@@ -1,7 +1,7 @@
 # Chatgpt generated this file. I just tweaked it a little bit.
 
 CC := c++
-CFLAGS := -Wall -Werror
+CFLAGS := -Wall -Werror -std=c++17
 SRCDIR := source
 BUILDDIR := build
 EXECUTABLE := slc

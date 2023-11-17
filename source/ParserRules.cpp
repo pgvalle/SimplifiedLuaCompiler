@@ -71,16 +71,17 @@ void Parser::field() {
 }
 
 void Parser::function() {
-  // // id ( Idsopt ) Block end
   if (tk.name == ID) {
     fetch_next_token();
+  } else if (tk.name != '(') {
+    // first(Ids) e follow porque pode não ter id
+    panic("<id> or <(>", { TkName('('), TkName(')'), ID });
   }
-  // todo fix this
   if (tk.name == '(') {
     fetch_next_token();
   } else {
     // first(Ids) e follow porque pode não ter id
-    panic("<(>", { TkName(')'), ID });
+    panic("<id> or <(>", { TkName('('), TkName(')'), ID });
   }
   if (tk.name == ID) {
     identifiers();
@@ -207,9 +208,12 @@ void Parser::identifiers() {
     fetch_next_token();
   } else {
     // follow(identifiers)
-    panic("<id>", { TkName('='), TkName(')') });
+    panic("<id>", {
+      // follow(ids)
+      TkName('='), TkName(')')
+    });
   }
-  while (tk.name == ',') {
+  if (tk.name == ',') {
     fetch_next_token();
     identifiers();
   }

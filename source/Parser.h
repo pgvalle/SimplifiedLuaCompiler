@@ -38,7 +38,7 @@ private:
   
   void identifiers();
 
-  using TkNameList = std::vector<TkName>;
+  using TkNameList = std::initializer_list<TkName>;
   bool token_in(const TkNameList& tokens) const;
   void panic(const char* msg, const TkNameList& tokens);
 

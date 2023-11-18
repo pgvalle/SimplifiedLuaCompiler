@@ -74,19 +74,29 @@ void Parser::return_statement() {
 }
 
 void Parser::for_statement() {
+  const auto check_do = [=]() -> void {
+    if (tk.name == KW_do) {
+      fetch_next_token();
+    } else {
+      panic("<do>", {
+        // first(block) - { & }
+        KW_do, KW_while, KW_if, KW_return, KW_break,
+        KW_for, KW_local, KW_function, ID, TkName('('),
+        // follow(block)
+        KW_end, KW_elseif, KW_else, EOTS
+      });
+    }
+    do_statement();
+  };
+
   if (tk.name == ID) {
     fetch_next_token();
   } else {
     panic("<id>", {
       // first(forids) - { & } U follow(forids)
-      TkName('='), TkName(','), KW_in,
-      // first(expression)
-      KW_not, KW_nil, KW_true, KW_false,
-      KW_function, ID, NUMBER, STRING,
-      TkName('-'), TkName('{'), TkName('(')
+      TkName('='), TkName(','), KW_in
     });
   }
-
   switch (tk.name) {
   case ',':
     do {
@@ -94,12 +104,13 @@ void Parser::for_statement() {
       if (tk.name == ID) {
         fetch_next_token();
       } else {
-        // panic("<=>", {});
+        panic("<id>", { KW_in });
       }
     } while (tk.name == ',');
   case KW_in:
+    fetch_next_token();
     expressions();
-    do_statement();
+    check_do();
     break;
   case '=':
     fetch_next_token();
@@ -107,11 +118,19 @@ void Parser::for_statement() {
     if (tk.name == ',') {
       fetch_next_token();
     } else {
-      // panic("<=>", {});
+      panic("<,>", {
+        // first(expression)
+        KW_not, KW_nil, KW_true, KW_false,
+        KW_function, ID, NUMBER, STRING,
+        TkName('-'), TkName('{'), TkName('(')
+      });
     }
     expression();
-    // for_expressions();
-    do_statement();
+    if (tk.name == ',') {
+      fetch_next_token();
+      expression();
+    }
+    check_do();
     break;
   default:
     panic("<=>", {});
@@ -121,12 +140,13 @@ void Parser::for_statement() {
 void Parser::decl_statement() {
   switch (tk.name) {
   case ID:
+    fetch_next_token();
     identifiers();
     if (tk.name == '=') {
       fetch_next_token();
     } else {
       panic("<=>", {
-        // first(expression)
+        // first(expressions)
         KW_not, KW_nil, KW_true, KW_false,
         KW_function, ID, NUMBER, STRING,
         TkName('-'), TkName('{'), TkName('(')
@@ -139,7 +159,7 @@ void Parser::decl_statement() {
     function();
     break;
   default:
-    // Follow(declaraction)
+    // follow(declaraction)
     panic("<id> or <function>", { TkName(';') });
   }
 }

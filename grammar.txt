@@ -51,12 +51,8 @@ Expression⟶string Expression2
 Expression2⟶BinOp Expression Expression2
 Expression2⟶
 
-PrefixExpression⟶id PrefixExpression2
-PrefixExpression⟶( Expression ) PrefixExpression2
-
-PrefixExpression2⟶[ Expression ] PrefixExpression2
-PrefixExpression2⟶. id PrefixExpression2
-PrefixExpression2⟶
+PrefixExpression⟶Variable
+PrefixExpression⟶( Expression )
 
 OptFields⟶Fields
 OptFields⟶
@@ -72,9 +68,11 @@ BinOp⟶bruh
 Variables⟶Variable , Variables
 Variables⟶Variable
 
-Variable⟶id
-Variable⟶PrefixExpression [ Expression ]
-Variable⟶PrefixExpression . id
+Variable⟶id Variable2
+Variable⟶( Expression ) [ Expression ] Variable2
+
+Variable2⟶[ Expression ] Variable2
+Variable2⟶
 
 Function⟶function id ( OptIds ) Block end
 

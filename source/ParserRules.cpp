@@ -20,7 +20,6 @@ void Parser::block() {
       });
     }
   }
-
 }
 
 void Parser::field() {
@@ -75,15 +74,16 @@ void Parser::function() {
     fetch_next_token();
   } else if (tk.name != '(') {
     // first(Ids) e follow porque pode não ter id
-    panic("<id> or <(>", { TkName('('), TkName(')'), ID });
+    panic("<id> or <(>", { TkName('('), ID });
   }
   if (tk.name == '(') {
     fetch_next_token();
   } else {
     // first(Ids) e follow porque pode não ter id
-    panic("<id> or <(>", { TkName('('), TkName(')'), ID });
+    panic("<id> or <(>", { TkName(')'), ID });
   }
   if (tk.name == ID) {
+    fetch_next_token();
     identifiers();
   }
   if (tk.name == ')') {
@@ -204,17 +204,15 @@ void Parser::fields() {
 }
 
 void Parser::identifiers() {
-  if (tk.name == ID) {
+  while (tk.name == ',') {
     fetch_next_token();
-  } else {
-    // follow(identifiers)
-    panic("<id>", {
-      // follow(ids)
-      TkName('='), TkName(')')
-    });
-  }
-  if (tk.name == ',') {
-    fetch_next_token();
-    identifiers();
+    if (tk.name == ID) {
+      fetch_next_token();
+    } else {
+      panic("<id>", {
+        // follow(ids)
+        TkName('='), TkName(')')
+      });
+    }
   }
 }

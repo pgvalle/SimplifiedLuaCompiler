@@ -8,7 +8,12 @@ private:
   Lexer lex;
   Token tk;
 
+  // ParserRules1.cpp
+
   void block();
+  void function();
+
+  // ParserRules2.cpp
 
   void do_statement();
   void while_statement();
@@ -18,14 +23,15 @@ private:
   void decl_statement();
   void statement();
   
-  void function();
+  // ParserRules3.cpp
 
   void prefix_expression();
-  void prefix_expression2();
   
   void expression();
   void expression2();
   void expressions();
+
+  // ParserRules4.cpp
 
   void variable();
   void variable2();
@@ -35,6 +41,8 @@ private:
   void fields();
   
   void identifiers();
+
+  // ParserBase.cpp
 
   void fetch_next_token();
 

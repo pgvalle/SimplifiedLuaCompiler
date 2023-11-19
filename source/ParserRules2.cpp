@@ -5,7 +5,8 @@ void Parser::do_statement() {
   if (tk.name == KW_end) {
     fetch_next_token();
   } else {
-    panic("<end>", { TkName(';') }); // follow(statement)
+    // follow(statement)
+    panic("<end>", { TkName(';') });
   }
 }
 
@@ -57,24 +58,25 @@ void Parser::if_statement() {
   if (tk.name == KW_end) {
     fetch_next_token();
   } else {
-    panic("<end>", { TkName(';') } ); // follow(statement)
+    // follow(statement)
+    panic("<end>", { TkName(';') } );
   }
 }
 
 void Parser::return_statement() {
   // First(expressions)
-  const TkNameList first_expressions = {
+  const TkNames first_expressions = {
     KW_not, KW_nil, KW_true, KW_false, KW_function, ID,
     NUMBER, STRING, TkName('-'), TkName('{'), TkName('(')
   };
   // if found, then there's an expression
-  if (token_in(first_expressions)) {
+  if (TkName_in(first_expressions)) {
     expressions();
   }
 }
 
 void Parser::for_statement() {
-  const auto check_do = [=]() -> void {
+  const auto do_ = [=]() {
     if (tk.name == KW_do) {
       fetch_next_token();
     } else {
@@ -110,7 +112,7 @@ void Parser::for_statement() {
   case KW_in:
     fetch_next_token();
     expressions();
-    check_do();
+    do_();
     break;
   case '=':
     fetch_next_token();
@@ -130,7 +132,7 @@ void Parser::for_statement() {
       fetch_next_token();
       expression();
     }
-    check_do();
+    do_();
     break;
   default:
     panic("<=>", {});
@@ -200,6 +202,12 @@ void Parser::statement() {
   case ID:
   case '(':
     variables();
+    if (tk.name == '=') {
+      fetch_next_token();
+    } else {
+
+    }
+    expressions();
     break;
   default:
     panic(

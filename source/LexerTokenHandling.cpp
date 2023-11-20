@@ -4,7 +4,7 @@ Token Lexer::next_id_or_kw() {
   const size_t cl = line, cc = column;
   // read and store id
   std::string id;
-  for (char c = code[i]; isalnum(c); c = next_char()) {
+  for (char c = code[i]; isalnum(c) || c == '_'; c = next_char()) {
     id += c;
   }
   // check if it's a keyword. It might be.

@@ -33,11 +33,11 @@ char Lexer::next_char() {
 }
 
 void Lexer::skip_invalid() {
-  const std::string str = " \n\t\0\"_(){}[]+*/^:,;-~=<>";
+  const std::string valid = " \n\t\0\"_(){}[]+*/^:,;-~=<>";
   char c;
   do {
     c = next_char();
-  } while (!isalnum(c) && str.find(c) == str.npos);
+  } while (!isalnum(c) && valid.find(c) == valid.npos);
 }
 
 bool is_spacer(char c) {

@@ -20,7 +20,8 @@ namespace First {
 
   const Parser::TkNames expression2 = {
     TkName('+'), TkName('-'), TkName('*'), TkName('/'),
-    TkName('^'), KW_or, KW_and, RELOP, CONCAT
+    TkName('^'), KW_or, KW_and, RELOP, CONCAT,
+    // epsilon
   };
 }
 

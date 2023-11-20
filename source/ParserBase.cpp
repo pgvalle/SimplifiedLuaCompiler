@@ -33,7 +33,7 @@ void Parser::panic(const char* msg, std::list<TkNames>&& sets) {
   // End of token stream. Simply halt.
   if (tk.name == EOTS) {
     exit(0);
-  } else { // show where we're at now
+  } else { // Show where we're at now
     printf("\tContinuing from <%s> at %lu:%lu.\n",
       tk.name_str().c_str(), tk.line, tk.column);
   }

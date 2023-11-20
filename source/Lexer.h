@@ -6,6 +6,12 @@
 #include <unordered_map>
 
 class Lexer {
+public:
+  Lexer(const char* filepath);
+  ~Lexer();
+
+  Token next_token();
+
 private:
   char* code;
   size_t i, line, column;
@@ -20,10 +26,4 @@ private:
   Token next_id_or_kw();
   Token next_number();
   Token next_string();
-
-public:
-  Lexer(const char* filepath);
-  ~Lexer();
-
-  Token next_token();
 };

@@ -287,10 +287,12 @@ void Parser::expression() {
       }
       variable2();
     }
+    expression2();
     break;
   case ID: // prefix expression
     next_token();
     variable2();
+    expression2();
     break;
   case KW_function:
     next_token();

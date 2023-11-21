@@ -1,9 +1,1 @@
-do
-  local a = true + false;
-  true;
-end;
-
-
-function simple_gay( shaman, kamui )
-
-end;
+pedrao_gabrielzao = 2; D

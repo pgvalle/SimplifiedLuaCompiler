@@ -47,5 +47,5 @@ void Parser::parse() {
   while (tk.name != EOTS) {
     panic("statement or end of token stream", { First::block });
     block();
-  }
+  }  
 }

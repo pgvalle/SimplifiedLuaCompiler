@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv) {
   if (argc != 2) {
-    printf("You must pass the filename!\n");
+    printf("You must pass exactly one filename!\n");
     return -1;
   }
 

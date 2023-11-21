@@ -16,7 +16,7 @@ void Parser::panic(const char* msg, std::list<TkNames>&& sets) {
   printf("%lu:%lu: Expected %s. Got <%s>.\n",
     tk.line, tk.column, msg, tk.name_str().c_str());
 
-  // union of sets passed
+  // get the union of sets passed
   TkNames all_names;
   for (const auto& names : sets) {
     all_names.insert(names.begin(), names.end());

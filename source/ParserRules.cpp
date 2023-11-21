@@ -1,24 +1,26 @@
 #include "Parser.h"
 
 namespace First {
-  const Parser::TkNames block = {
+  extern const TkNames block = {
     KW_do, KW_while, KW_if, KW_return, KW_break,
     KW_for, KW_local, KW_function, ID, TkName('('),
     // epsilon
   };
 
-  const Parser::TkNames function = {
+  const TkNames& statement = block;
+
+  const TkNames function = {
     KW_function
   };
 
-  const Parser::TkNames expression = {
+  const TkNames expression = {
     KW_not, KW_nil, KW_true, KW_false, KW_function, ID,
     NUMBER, STRING, TkName('-'), TkName('{'), TkName('(')
   };
 
-  const Parser::TkNames& expressions = expression;
+  const TkNames& expressions = expression;
 
-  const Parser::TkNames expression2 = {
+  const TkNames expression2 = {
     TkName('+'), TkName('-'), TkName('*'), TkName('/'),
     TkName('^'), KW_or, KW_and, RELOP, CONCAT,
     // epsilon
@@ -26,46 +28,47 @@ namespace First {
 }
 
 namespace Follow {
-  const Parser::TkNames block = {
+  const TkNames block = {
     KW_end, KW_elseif, KW_else, EOTS
   };
 
-  const Parser::TkNames function = {
+  const TkNames function = {
     TkName('+'), TkName('-'), TkName('*'), TkName('/'),
     TkName('^'), KW_or, KW_and, RELOP, CONCAT,
     TkName('}'), TkName(')'), TkName(']'), TkName(';'),
     TkName(','), KW_do, KW_then
   };
 
-  const Parser::TkNames statement = {
+  const TkNames statement = {
     TkName(';')
   };
 
-  const Parser::TkNames expression = {
+  const TkNames expression = {
     TkName('+'), TkName('-'), TkName('*'), TkName('/'),
     TkName('^'), KW_or, KW_and, RELOP, CONCAT,
     TkName('}'), TkName(')'), TkName(']'), TkName(';'),
     TkName(','), KW_do, KW_then
   };
 
-  const Parser::TkNames expression2 = {
+  const TkNames expression2 = {
     TkName('}'), TkName(')'), TkName(']'),
     TkName(';'), TkName(','), KW_do, KW_then
   };
 }
 
 void Parser::block() {
-  while (TkName_in(First::block)) {
+  while (TkName_in(First::statement)) {
     statement();
     if (tk.name == ';') {
       next_token();
     } else {
-      panic("<;>", { First::block, Follow::block });
+      panic("end of statement, aka <;>", { First::statement, Follow::block });
     }
   }
 }
 
 void Parser::function() {
+  // id is optional
   if (tk.name == ID) {
     next_token();
   } else if (tk.name != '(') {
@@ -76,8 +79,9 @@ void Parser::function() {
     next_token();
   } else {
     // first(Ids) e follow porque pode não ter id
-    panic("<id> or <(>", { { TkName(')'), ID } });
+    panic("<(>", { { TkName(')'), ID } });
   }
+  // arguments are optional
   if (tk.name == ID) {
     next_token();
     identifiers();
@@ -91,7 +95,7 @@ void Parser::function() {
   if (tk.name == KW_end) {
     next_token();
   } else {
-    panic("<end>", { Follow::function });
+    panic("end of scope", { Follow::function });
   }
 }
 
@@ -100,7 +104,7 @@ void Parser::do_statement() {
   if (tk.name == KW_end) {
     next_token();
   } else {
-    panic("<end>", { Follow::statement });
+    panic("end of scope, aka <end>", { Follow::statement });
   }
 }
 
@@ -124,7 +128,7 @@ void Parser::if_statement() {
   if (tk.name == KW_end) {
     next_token();
   } else {
-    panic("<end>", { Follow::statement } );
+    panic("end of scope", { Follow::statement } );
   }
 }
 
@@ -239,7 +243,7 @@ void Parser::statement() {
     break;
   case ID:
   case '(':
-    // variables
+    /* variables */
     variable();
     while (tk.name == ',') {
       next_token();
@@ -250,6 +254,7 @@ void Parser::statement() {
     } else {
       panic("<=>", { First::expressions });
     }
+    /* end variables */
     expressions();
     break;
   default:
@@ -269,8 +274,9 @@ void Parser::expression() {
     expression();
     expression2();
     break;
-  case '(': // prefix expression
+  case '(':
     next_token();
+    /* prefix_expression */
     expression();
     if (tk.name == ')') {
       next_token();
@@ -287,6 +293,7 @@ void Parser::expression() {
       }
       variable2();
     }
+    /* end prefix_expression */
     expression2();
     break;
   case ID: // prefix expression

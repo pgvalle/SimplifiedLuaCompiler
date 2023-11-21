@@ -11,27 +11,25 @@ bool Parser::TkName_in(const TkNames& names) const {
   return names.find(TkName(tk.name)) != names.end();
 }
 
-Parser::TkNames sets_union(const std::list<Parser::TkNames>& sets) {
-  Parser::TkNames all_names;
+void Parser::panic(const char* msg, std::list<TkNames>&& sets) {
+  // show error
+  printf("%lu:%lu: Expected %s. Got <%s>.\n",
+    tk.line, tk.column, msg, tk.name_str().c_str());
+
+  // union of sets passed
+  TkNames all_names;
   for (const auto& names : sets) {
     all_names.insert(names.begin(), names.end());
   }
-  return all_names;
-}
-
-void Parser::panic(const char* msg, std::list<TkNames>&& sets) {
-  // show error
-  printf("%lu:%lu:Error: Expected %s. Got <%s>.\n",
-    tk.line, tk.column, msg, tk.name_str().c_str());
-
   // skip tokens until found one that is inside sync set 
-  const TkNames all_names = sets_union(sets);
   while (!TkName_in(all_names) && tk.name != EOTS) {
     next_token();
   }
 
   // End of token stream. Simply halt.
   if (tk.name == EOTS) {
+    printf("%lu:%lu: Unexpected end of token stream.\n",
+      tk.line, tk.column);
     exit(0);
   } else { // Show where we're at now
     printf("\tContinuing from <%s> at %lu:%lu.\n",
@@ -39,7 +37,15 @@ void Parser::panic(const char* msg, std::list<TkNames>&& sets) {
   }
 }
 
+namespace First {
+  extern const TkNames block;
+}
+
 void Parser::parse() {
   next_token();
   block();
+  while (tk.name != EOTS) {
+    panic("statement or end of token stream", { First::block });
+    block();
+  }
 }

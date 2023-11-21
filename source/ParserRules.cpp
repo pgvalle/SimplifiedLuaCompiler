@@ -95,7 +95,7 @@ void Parser::function() {
   if (tk.name == KW_end) {
     next_token();
   } else {
-    panic("end of scope", { Follow::function });
+    panic("end of scope, aka <end>", { Follow::function });
   }
 }
 
@@ -128,7 +128,7 @@ void Parser::if_statement() {
   if (tk.name == KW_end) {
     next_token();
   } else {
-    panic("end of scope", { Follow::statement } );
+    panic("end of scope, aka <end>", { Follow::statement } );
   }
 }
 

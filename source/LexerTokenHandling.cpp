@@ -1,11 +1,15 @@
 #include "Lexer.h"
 
+bool is_part_of_id(char c) {
+  return isalnum(c) || c == '_';
+}
+
 Token Lexer::next_id_or_kw() {
-  const size_t cl = line, cc = column;
+  const size_t cl = line, cc = column; // current line/column -> cl/cc
   // read and store id
   std::string id;
-  for (char c = code[i]; isalnum(c) || c == '_'; c = next_char()) {
-    id += c;
+  for (; is_part_of_id(code[i]); next_char()) {
+    id += code[i];
   }
   // check if it's a keyword. It might be.
   const size_t kw_enum_len = KW_ENUM_END - KW_ENUM_BEGIN - 1;
@@ -25,21 +29,21 @@ Token Lexer::next_id_or_kw() {
 Token Lexer::next_number() {
   const size_t cl = line, cc = column;
   int number = 0;
-  for (char c = code[i]; isdigit(c); c = next_char()) {
-    number = 10 * number + int(c - '0');
+  for (; isdigit(code[i]); next_char()) {
+    number = 10 * number + int(code[i] - '0');
   }
   return Token(NUMBER, number, cl, cc);
 }
 
 Token Lexer::next_string() {
-  const size_t cl = line, cc = column;
+  const size_t cl = line, cc = column; // current line/column -> cl/cc
   uint8_t state = 0;
-  for (char c = next_char(); c; c = next_char()) {
+  for (next_char(); code[i]; next_char()) {
     switch (state) {
     case 0: // reading string
-      if (c == '\\') { // control character code comming
+      if (code[i] == '\\') { // control character code comming
         state = 1;
-      } else if (c  == '"') {
+      } else if (code[i]  == '"') {
         next_char();
         return Token(STRING, 0, cl, cc);
       }
@@ -49,11 +53,11 @@ Token Lexer::next_string() {
       break;
     }
   }
-
   return Token(INVALID, 0, cl, cc);
 }
 
 Token Lexer::next_token() {
+  const size_t a = line, b = column; // fix eots token location bug
   start:
   skip_spacers();
 
@@ -69,14 +73,13 @@ Token Lexer::next_token() {
   case '"':
     return next_string();
   case '-':
-    if (next_char() == '-') { // it's a comment
+    if (next_char() == '-') {
       skip_comment();
-      goto start; // go back to start
+      goto start;
     }
-    // it's the - sign
     return Token('-', 0, cl, cc);
   case '.':
-    if (next_char() == '.') { // ..
+    if (next_char() == '.') {
       next_char();
       return Token(CONCAT, 0, cl, cc);
     }
@@ -106,14 +109,13 @@ Token Lexer::next_token() {
     }
     break;
   case '\0':
-    return Token(EOTS, 0, cl, cc);
+    return Token(EOTS, 0, a, b);
   default:
     // tokens of "size" 1 which don't match the beginning of any other token
-    for (char c : "(){}[]+*/^:,;") {
-      if (c == code[i]) {
-        next_char();
-        return Token(c, 0, cl, cc);
-      }
+    const std::string chars = "(){}[]+*/^:,;";
+    if (chars.find(code[i]) != chars.npos) {
+      next_char();
+      return Token(code[i - 1], 0, cl, cc);
     }
   }
   // nothing that should be recognized.

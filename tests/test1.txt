@@ -1,9 +1,27 @@
-do 
+-- funcao bem util
+function array_sum(array, id)
+  local total = 0;
+  for elem in array do
+    total = total + elem;
+  end;
 end;
-;         
-d                          
-    
 
+-- fatorial
+function factorial(n)
+  local value = 1;
+  for i = 2, i <= n do
+    value = value * i;
+  end;
+  return value;
+end;
 
-
-     
+-- fibonacci
+function fibonacci(n)
+  local fib0, fib1 = 0, 1;
+  for i = 0, i < n do
+    local tmp = fib1;
+    fib1 = fib0 + fib1;
+    fib0 = fib1;
+  end;
+  return fib0;
+end;

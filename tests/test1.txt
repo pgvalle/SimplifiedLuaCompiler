@@ -1,0 +1,9 @@
+do
+  local a = true + false;
+  true;
+end;
+
+
+function simple_gay( shaman, kamui )
+
+end;

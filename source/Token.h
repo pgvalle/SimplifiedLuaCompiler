@@ -5,29 +5,23 @@
 
 #define KW(kw) KW_##kw
 // the remaining token names that are not here are ascii characters
-// and don't match any other token beginning 
 enum TkName {
-  // basic???
-  INVALID = 0, ID, RELOP, NUMBER, STRING,
-  
-  // ???
-  CONCAT,
-
+  INVALID = 0, ID, RELOP, NUMBER, STRING, // basic stuff
+  CONCAT, // particular operator
+  // keywords
   KW_ENUM_BEGIN = 200,
     KW_LIST
   KW_ENUM_END,
-
   EOTS // End Of Token Stream
 };
 #undef KW
+typedef std::set<TkName> TkNames;
 
 // types of relop tokens
 enum RelOp {
   RELOP_BEGIN = 128,
   EQ, NE, LT, GT, LE, GE
 };
-
-typedef std::set<TkName> TkNames;
 
 struct Token {
   int name;

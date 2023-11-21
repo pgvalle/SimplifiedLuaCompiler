@@ -1,15 +1,12 @@
 #pragma once
 
 #include "Lexer.h"
-#include <set>
 #include <list>
 
 class Parser {
 public:
   Parser(const char* filepath);
   void parse();
-
-  using TkNames = std::set<TkName>;
 
 private:
   Lexer lex;

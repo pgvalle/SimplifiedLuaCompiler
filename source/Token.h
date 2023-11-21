@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include <set>
 #include "Keywords.h"
 
 #define KW(kw) KW_##kw
@@ -26,6 +26,8 @@ enum RelOp {
   RELOP_BEGIN = 128,
   EQ, NE, LT, GT, LE, GE
 };
+
+typedef std::set<TkName> TkNames;
 
 struct Token {
   int name;

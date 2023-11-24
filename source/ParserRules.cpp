@@ -179,7 +179,7 @@ void Parser::for_statement() {
     do_();
     break;
   default:
-    panic("<=>", { Follow::statement });
+    panic("<=>, <,> or <in>", { Follow::statement });
   }
 }
 

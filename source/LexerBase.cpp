@@ -1,4 +1,5 @@
 #include "Lexer.h"
+#include <cstdlib>
 
 Lexer::Lexer(const char* filepath) {
   FILE* file = fopen(filepath, "r");

@@ -62,7 +62,8 @@ void Parser::block() {
     if (tk.name == ';') {
       next_token();
     } else {
-      panic("end of statement, aka <;>", { First::statement, Follow::block });
+      panic("end of statement, aka <;>",
+        { First::statement, Follow::block });
     }
   }
 }

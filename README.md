@@ -5,8 +5,8 @@
 ## Gramática
 
 A gramática original está no documento
-[analise-sintatica.pdf](assets/analise-sintatica.pdf) dentro do diretório assets.\
-Segue as observações da transformação LL(1)
+[analise-sintatica.pdf](assets/analise-sintatica.pdf) dentro do diretório assets.
+Seguem as observações da transformação LL(1):
 
 1. `Params` e `Names` eram redundantes na gramática.
 2. `FunctionBody` não era necessário.

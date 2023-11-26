@@ -13,6 +13,7 @@ private:
   Token tk;
 
   void block();
+
   void function();
 
   void do_statement();
@@ -20,6 +21,8 @@ private:
   void for_statement();
   void decl_statement();
   void statement();
+
+  void prefix_expression();
   
   void expression();
   void expression2();

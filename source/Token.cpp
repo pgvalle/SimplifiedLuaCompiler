@@ -29,12 +29,16 @@ std::string Token::name_str() const {
     return "string";
   case CONCAT:
     return "..";
-  case KW_ENUM_BEGIN ... KW_ENUM_END: // actually BEGIN+1...END-1
-    return KEYWORDS[attrib];
   case EOTS:
     return "EOTS";
-  default: // tokens that are a single ascii character
-    char c = name;
-    return &c;
+  default:
+    // keyword
+    if (KW_ENUM_BEGIN < name && name < KW_ENUM_END) {
+      return KEYWORDS[attrib];
+    }
+    // tokens that are a single ascii character
+    // this is for the program not to display a mess if compiled with msvc
+    char temp[2] = { (char)name, '\0' };
+    return temp;
   }
 }

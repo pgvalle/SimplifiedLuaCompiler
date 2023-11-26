@@ -1,4 +1,5 @@
 #include "Lexer.h"
+#include <cstdint>
 #include <cstdlib>
 
 Lexer::Lexer(const char* filepath) {

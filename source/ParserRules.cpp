@@ -267,6 +267,37 @@ void Parser::statement() {
   }
 }
 
+void Parser::prefix_expression() {
+  switch (tk.name) {
+  case ID:
+    next_token();
+    variable2();
+    break;
+  case '(':
+    expression();
+    if (tk.name == ')') {
+      next_token();
+    } else {
+      panic("<)>", {
+          { TkName('[') }, First::expression,
+          First::expression2, Follow::expression2
+      });
+    }
+    if (tk.name == '[') {
+      next_token();
+      expression();
+      if (tk.name == ']') {
+        next_token();
+      } else {
+        //panic("<]>", { First::variable2, Follow::Variable2 }); // TODO: implement error handling here
+      }
+      variable2();
+    }
+    break;
+  }
+  expression2();
+}
+
 void Parser::expression() {
   switch (tk.name) {
   case KW_not:
@@ -275,32 +306,10 @@ void Parser::expression() {
     expression();
     expression2();
     break;
+  case ID:
   case '(':
     next_token();
-    /* prefix_expression */
-    expression();
-    if (tk.name == ')') {
-      next_token();
-    } else {
-      panic("<)>", {}); // TODO: implement error handling here
-    }
-    if (tk.name == '[') {
-      next_token();
-      expression();
-      if (tk.name == ']') {
-        next_token();
-      } else {
-        panic("<]>", {}); // TODO: implement error handling here
-      }
-      variable2();
-    }
-    /* end prefix_expression */
-    expression2();
-    break;
-  case ID: // prefix expression
-    next_token();
-    variable2();
-    expression2();
+    prefix_expression();
     break;
   case KW_function:
     next_token();
@@ -311,12 +320,12 @@ void Parser::expression() {
     next_token();
     // since fields is optional we check for first(fields) before calling it
     if (tk.name == ID || tk.name == '[') {
-      // fields
+      /* fields */
       field();
       while (tk.name == ',') {
         next_token();
         field();
-      }
+      } /* end fields */
     }
     if (tk.name == '}') {
       next_token();

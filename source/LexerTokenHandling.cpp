@@ -1,4 +1,5 @@
 #include "Lexer.h"
+#include <cstdint>
 
 bool is_part_of_id(char c) {
   return isalnum(c) || c == '_';
@@ -63,13 +64,6 @@ Token Lexer::next_token() {
 
   const size_t cl = line, cc = column; // current line/column -> cl/cc
   switch (code[i]) {
-  case '_':
-  case 'a' ... 'z':
-  case 'A' ... 'Z':
-    return next_id_or_kw();
-    break;
-  case '0' ... '9':
-    return next_number();
   case '"':
     return next_string();
   case '-':
@@ -111,6 +105,14 @@ Token Lexer::next_token() {
   case '\0':
     return Token(EOTS, 0, a, b);
   default:
+    // id/keyword
+    if (isalpha(code[i]) || code[i] == '_') {
+      return next_id_or_kw();
+    }
+    // number
+    if (isdigit(code[i])) {
+      return next_number();
+    }
     // tokens of "size" 1 which don't match the beginning of any other token
     const std::string chars = "(){}[]+*/^:,;";
     if (chars.find(code[i]) != chars.npos) {

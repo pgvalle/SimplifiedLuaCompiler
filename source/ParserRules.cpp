@@ -25,6 +25,8 @@ namespace First {
     TkName('^'), KW_or, KW_and, RELOP, CONCAT,
     // epsilon
   };
+
+  const TkNames variable2 = { TkName('[') };
 }
 
 namespace Follow {
@@ -43,16 +45,15 @@ namespace Follow {
     TkName(';')
   };
 
-  const TkNames expression = {
+  const TkNames& expression = function;
+
+  const TkNames& expression2 = function;
+
+  const TkNames variable2 = {
     TkName('+'), TkName('-'), TkName('*'), TkName('/'),
     TkName('^'), KW_or, KW_and, RELOP, CONCAT,
     TkName('}'), TkName(')'), TkName(']'), TkName(';'),
-    TkName(','), KW_do, KW_then
-  };
-
-  const TkNames expression2 = {
-    TkName('}'), TkName(')'), TkName(']'),
-    TkName(';'), TkName(','), KW_do, KW_then
+    TkName(','), KW_do, KW_then, TkName('=')
   };
 }
 
@@ -74,7 +75,7 @@ void Parser::function() {
     next_token();
   } else if (tk.name != '(') {
     // first(Ids) e follow porque pode não ter id
-    panic("<id> or <(>", { { TkName('('), ID } });
+    panic("<id> or <(>", { { TkName('('), TkName(')'), ID } });
   }
   if (tk.name == '(') {
     next_token();
@@ -156,11 +157,15 @@ void Parser::for_statement() {
       if (tk.name == ID) {
         next_token();
       } else {
-        panic("<id>", { { KW_in } });
+        panic("<id>", { { KW_in, TkName(',') }, First::expressions });
       }
     } while (tk.name == ',');
   case KW_in:
-    next_token();
+    if (tk.name == KW_in) {
+      next_token(); 
+    } else {
+      panic("<id>", { First::expressions });
+    }
     expressions();
     do_();
     break;
@@ -222,7 +227,6 @@ void Parser::statement() {
     break;
   case KW_return:
     next_token();
-    // if found, then 'return' returns something
     if (TkName_in(First::expressions)) {
       expressions();
     }
@@ -254,8 +258,7 @@ void Parser::statement() {
       next_token();
     } else {
       panic("<=>", { First::expressions });
-    }
-    /* end variables */
+    } /* end variables */
     expressions();
     break;
   default:
@@ -289,7 +292,7 @@ void Parser::prefix_expression() {
       if (tk.name == ']') {
         next_token();
       } else {
-        //panic("<]>", { First::variable2, Follow::Variable2 }); // TODO: implement error handling here
+        panic("<]>", { First::variable2, Follow::variable2 });
       }
       variable2();
     }
@@ -308,8 +311,8 @@ void Parser::expression() {
     break;
   case ID:
   case '(':
-    next_token();
     prefix_expression();
+    expression2();
     break;
   case KW_function:
     next_token();
@@ -392,16 +395,15 @@ void Parser::variable() {
 }
 
 void Parser::variable2() {
-  if (tk.name == '[') {
+  while (tk.name == '[') {
     next_token();
     expression();
     if (tk.name == ']') {
       next_token();
     } else {
-      // follow(variable2)
-      panic("<]>", { { TkName('='), TkName(',') } });
+      // first(variable2) U follow(variable2)
+      panic("<]>", { First::variable2, Follow::variable2 });
     }
-    variable2();
   }
 }
 

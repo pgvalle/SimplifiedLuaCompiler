@@ -109,15 +109,15 @@ tem um Lexer e um Token como campos.
 A Primeira coisa importante a se dizer se trata dos nomes das variáveis no
 código. `Exp` virou `Expression`, `Stmt` virou `Statement` e por ai vai.
 
-Um outro ponto é sobre os métodos que implementam as regras. Eu fiz duas coisas
+Um outro ponto é sobre os métodos que implementam as regras. Eu fiz  coisas
 diferentes de como está na gramática:
 
 1. Criei um procedimento para o padrão `do Block end` chamado `do_statement()`.
 Eu chamo ele toda vez que o padrão aparece. O porém é que em teoria deveria
 existir uma regra `DoBLock` ou algo assim, mas criá-la deixaria a gramática
 maior, então considerei isso somente na implementação.
-2. A implementação dos comandos for e if ficaram grandinhas, por isso eu
-modulei `Stmt` um pouco.
+2. As implementações de algumas coisas, tipo as dos comandos for e if, ficaram
+meio grandinhas, por isso eu modulei um pouco mais o código.
 3. `Vars` só é chamado dentro de `Stmt` e sua implementação é pequena.
 Então eu não separei `Vars` em um procedimento. Também fiz isso com `Fields`,
 chamado somente dentro de `Exp`.

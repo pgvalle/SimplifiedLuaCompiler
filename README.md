@@ -5,17 +5,17 @@
 ## Gramática
 
 A gramática original está no documento
-[analise-sintatica.pdf](assets/analise-sintatica.pdf) dentro do diretório assets.
+[analise-sintatica.pdf](assets/analise-sintatica.pdf) dentro do diretório assets.\
 Seguem as observações da transformação LL(1):
 
 1. `Params` e `Names` eram redundantes na gramática.
 2. `FunctionBody` não era necessário.
 3. `Names` e `Name` eu chamei de `Ids` e `id`, respectivamente.
-4. `Stmt` tinha múltiplas regras que iam em “local ...” e “for ...”.
+4. `Stmt` tinha múltiplas regras que iam em “`local ...`” e “`for ...`”.
 5. `Block`, `Exps`, `Field`, `BinOp`, `Vars`, `Function` e `Names` estavam ok.
 6. `Exp` tinha recursão à esquerda.
 7. `PrefixExp` e `Var` tinham recursão indireta. Taquei `PrefixExp` em `Var`, que ganhou recursão à esquerda.\
-Depois taquei Var em PrefixExp porque o first de ambos são iguais.
+Depois taquei `Var` em `PrefixExp` porque o First de ambos são iguais.
 8. O "OPT" virou "?" para facilitar.
 
 ```

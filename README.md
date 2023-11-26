@@ -41,9 +41,6 @@ Decls
   ::= Ids = Exps
    |  Function
 
-Exps
-  ::= Exp (, Exp)*
-
 Exp
   ::= not Exp Exp2
    |  -Exp Exp2
@@ -60,22 +57,22 @@ Exp2
   ::= BinOp Exp Exp2
    |  ɛ
 
+Exps
+  ::= Exp (, Exp)*
+
 PrefixExp
   ::= id Var2
    |  ( Exp ) Var2
-
-Fields
-  ::= Field (, Field)*
 
 Field
   ::= [ Exp ] = Exp
    |  id = Exp
 
+Fields
+  ::= Field (, Field)*
+
 BinOp
   ::= or | and | < | > | <= | >= | ~= | == | .. | + | - | * | / | ^
-
-Vars
-  ::= Var (, Var)*
 
 Var
   ::= id Var2
@@ -85,6 +82,9 @@ Var2
   ::= [ Exp ] Var2
    |  ɛ
 
+Vars
+  ::= Var (, Var)*
+
 Function
   ::= function id? ( Ids? ) Block end
 
@@ -92,17 +92,55 @@ Ids
   ::= id (, id)*
 ```
 
-## First e Follow
+## First
 
-...
+```
+Block      ( break do for function id if local return while ϵ
+Stmt       ( break do for function id if local return while
+Fors       ( , - false function id in nil not num str true {
+Decls      function, id }
+Exp        ( - false function id nil not number string true {
+Exp2       or and < > <= >= ~= == .. + - * / ^ ϵ
+Exps       ( - false function id nil not number string true { ϵ
+PrefixExp  ( id
+Field      [ id
+Fields     [ id ϵ
+BinOp      or and < > <= >= ~= == .. + - * / ^ ϵ
+Ids        id
+Var        ( id
+Var2       [ ϵ
+Vars       ( id
+Function   function
+```
+
+## Follow
+
+```
+Block      EOTS else elseif end
+Stmt       ;
+Fors       ;
+Decls      ;
+Exp        ) , ] do then or and < > <= >= ~= == .. + - * / ^
+Exp2       ) , ] do then or and < > <= >= ~= == .. + - * / ^
+Exps       ; do
+PrefixExp  ) , ] do then or and < > <= >= ~= == .. + - * / ^
+Field      ,
+Fields     }
+BinOp      ( - false function id nil not number string true {
+Ids        ) =
+Var        , =
+Var2       ) , = ] or and < > <= >= ~= == .. + - * / ^ do then
+Vars       =
+Function   ) , ] ; do then or and < > <= >= ~= == .. + - * / ^
+```
 
 ## Implementação
 
-O analisador sintático (que eu chamei de parser) está dividido em três arquivos:
+O analisador sintático  está dividido em três arquivos:
 [Parser.h](source/Parser.h), [ParserBase.cpp](source/ParserBase.cpp) e
 [ParserRules.cpp](source/ParserRules.cpp). Utilizei orientação a objetos, assim
-como no trabalho de análise léxica. Então existe uma classe Parser, e ela
-tem um Lexer e um Token como campos.
+como no trabalho de análise léxica. Então existe uma classe Parser, e ela tem um
+Lexer e um Token como campos.
 
 #### Observações Gerais
 
@@ -114,16 +152,24 @@ coisas diferentes de como está na gramática:
 
 1. Criei um procedimento para o padrão `do Block end` chamado `do_statement()`.
 Eu chamo ele toda vez que o padrão aparece. O porém é que em teoria deveria
-existir uma regra `DoBLock` ou algo assim, mas criá-la deixaria a gramática
-maior, então considerei isso somente na implementação.
-2. As implementações de algumas coisas, tipo as dos comandos for e if, ficaram
-meio grandinhas, por isso eu modulei um pouco mais o código.
-3. `Vars` só é chamado dentro de `Stmt` e sua implementação é pequena.
-Então eu não separei `Vars` em um procedimento. Também fiz isso com `Fields`,
-chamado somente dentro de `Exp`.
+existir uma regra `DoStmt` ou algo assim, mas criá-la deixaria a gramática
+maior, então considerei isso somente para a implementação.
+2. As implementações de algumas coisas, como as dos comandos for e if, ficaram
+meio grandinhas. Por isso eu modulei um pouco mais o código, mesmo não tendo (e
+eu não querendo adicionar) as regras `ForStmt` e `IfStmt` na gramática.
+3. `Vars` e `Fields` só são chamados dentro de `Stmt` e suas implementações são
+pequenas. Então simplesmente os implementei diretamente dentro de `Exp`.
 
 #### Funcionamento
 
-O executável precisa de exatamente 1 argumento adicional: o nome do arquivo a
-ser analisado. O programa principal está dentro de um bloco try-catch para
-tratar um possível erro de arquivo.
+**NOTA:** O executável precisa exatamente de 1 argumento: o caminho (relativo
+ou absoluto) do arquivo a analisar.
+
+`parse()` pega o primeiro token e passa a execução para
+`Block`. Quando `Block` termina, `parse()` verifica se o token atual é o `EOTS`.
+Se for, ótimo. Senão, continua chamando `Block` enquanto não for.
+
+Para tratamento de erro, implementei o método `panic(err_msg, sync_sets)`, que
+descarta tokens até que se ache algum dentro de `sync_sets`. No caso de encontrar
+`EOTS`, o programa termina.
+

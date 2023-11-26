@@ -110,17 +110,18 @@ A Primeira coisa importante a se dizer se trata dos nomes das variáveis no
 código. `Exp` virou `Expression`, `Stmt` virou `Statement` e por ai vai.
 
 Um outro ponto importante sobre os métodos que implementam as regras é que eu
-fiz algumas separações não existentes na gramática. Por exemplo, eu criei um
-procedimento para o padrão `do Block end` chamado `do_statement()`, e eu chamo
-ele toda vez que o padrão aparece. Criar uma regra específica para esse padrão
-na gramática a deixaria maior, então considerei isso somente na implementação.
+fiz duas coisas diferentes de como está na gramática:
 
-Outra observação é que `Vars` só é chamado dentro de Statement e sua
-implementação é pequena. Logo eu não separei `Vars` em um procedimento. Isso
-também acontece com `Fields`, chamado somente dentro de `Exp`.
+1. Criei um procedimento para o padrão `do Block end` chamado `do_statement()`.
+Eu chamo ele toda vez que o padrão aparece. Em teoria deveria existir uma regra
+`DoBLock` ou algo assim, mas criar uma regra específica na gramática para esse
+padrão a deixaria maior, então considerei isso somente na implementação.
+2. `Vars` só é chamado dentro de `Statement` e sua implementação é pequena.
+Então eu não separei `Vars` em um procedimento. Também fiz isso com `Fields`,
+chamado somente dentro de `Exp`.
 
 #### Funcionamento
 
-O executável precisa de exatamente 1 argumento adicional, que é o nome do
-arquivo a ser analisado. O programa principal está dentro de
-um bloco try-catch para tratar um possível erro de arquivo.
+O executável precisa de exatamente 1 argumento adicional: o nome do arquivo a
+ser analisado. O programa principal está dentro de um bloco try-catch para
+tratar um possível erro de arquivo.

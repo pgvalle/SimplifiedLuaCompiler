@@ -113,10 +113,12 @@ Um outro ponto importante sobre os métodos que implementam as regras é que eu
 fiz duas coisas diferentes de como está na gramática:
 
 1. Criei um procedimento para o padrão `do Block end` chamado `do_statement()`.
-Eu chamo ele toda vez que o padrão aparece. Em teoria deveria existir uma regra
-`DoBLock` ou algo assim, mas criar uma regra específica na gramática para esse
-padrão a deixaria maior, então considerei isso somente na implementação.
-2. `Vars` só é chamado dentro de `Statement` e sua implementação é pequena.
+Eu chamo ele toda vez que o padrão aparece. O porém é que em teoria deveria
+existir uma regra `DoBLock` ou algo assim, mas criá-la deixaria a gramática
+maior, então considerei isso somente na implementação.
+2. A implementação dos comandos for e if ficaram grandinhas, por isso eu
+modulei `Stmt` um pouco.
+3. `Vars` só é chamado dentro de `Stmt` e sua implementação é pequena.
 Então eu não separei `Vars` em um procedimento. Também fiz isso com `Fields`,
 chamado somente dentro de `Exp`.
 

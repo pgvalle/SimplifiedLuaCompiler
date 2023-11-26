@@ -96,8 +96,31 @@ Ids
 
 ...
 
-## Observações da Implementação
+## Implementação
 
+O analisador sintático (que eu chamei de parser) está dividido em três arquivos:
+[Parser.h](source/Parser.h), [ParserBase.cpp](source/ParserBase.cpp) e
+[ParserRules.cpp](source/ParserRules.cpp). Utilizei orientação a objetos, assim
+como no trabalho de análise léxica. Então existe uma classe Parser, e ela
+tem um Lexer e um Token como campos.
 
+#### Observações Gerais
 
+A Primeira coisa importante a se dizer se trata dos nomes das variáveis no
+código. `Exp` virou `Expression`, `Stmt` virou `Statement` e por ai vai.
 
+Um outro ponto importante sobre os métodos que implementam as regras é que eu
+fiz algumas separações não existentes na gramática. Por exemplo, eu criei um
+procedimento para o padrão `do Block end` chamado `do_statement()`, e eu chamo
+ele toda vez que o padrão aparece. Criar uma regra específica para esse padrão
+na gramática a deixaria maior, então considerei isso somente na implementação.
+
+Outra observação é que `Vars` só é chamado dentro de Statement e sua
+implementação é pequena. Logo eu não separei `Vars` em um procedimento. Isso
+também acontece com `Fields`, chamado somente dentro de `Exp`.
+
+#### Funcionamento
+
+O executável precisa de exatamente 1 argumento adicional, que é o nome do
+arquivo a ser analisado. O programa principal está dentro de
+um bloco try-catch para tratar um possível erro de arquivo.

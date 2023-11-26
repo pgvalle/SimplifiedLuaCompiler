@@ -109,8 +109,8 @@ tem um Lexer e um Token como campos.
 A Primeira coisa importante a se dizer se trata dos nomes das variáveis no
 código. `Exp` virou `Expression`, `Stmt` virou `Statement` e por ai vai.
 
-Um outro ponto é sobre os métodos que implementam as regras. Eu fiz  coisas
-diferentes de como está na gramática:
+Um outro ponto é sobre os métodos que implementam as regras. Eu fiz algumas
+coisas diferentes de como está na gramática:
 
 1. Criei um procedimento para o padrão `do Block end` chamado `do_statement()`.
 Eu chamo ele toda vez que o padrão aparece. O porém é que em teoria deveria

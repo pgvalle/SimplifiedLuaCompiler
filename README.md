@@ -97,8 +97,8 @@ Ids
 ```
 Block      ( break do for function id if local return while ϵ
 Stmt       ( break do for function id if local return while
-Fors       ( , - false function id in nil not num str true {
-Decls      function, id }
+Fors       , in =
+Decls      function id
 Exp        ( - false function id nil not number string true {
 Exp2       or and < > <= >= ~= == .. + - * / ^ ϵ
 Exps       ( - false function id nil not number string true { ϵ

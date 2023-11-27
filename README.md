@@ -173,3 +173,8 @@ Para tratamento de erro, implementei o método `panic(err_msg, sync_sets)`, que
 descarta tokens até que se ache algum dentro de `sync_sets`. No caso de encontrar
 `EOTS`, o programa termina.
 
+## Testes
+
+![teste 1](tests/test1.png "Test1")
+![teste 2](tests/test2.png "Test2")
+![teste 2](tests/test3.png "Test3")

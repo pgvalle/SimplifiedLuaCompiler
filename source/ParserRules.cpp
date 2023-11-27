@@ -219,6 +219,11 @@ void Parser::statement() {
   case KW_while:
     next_token();
     expression();
+    if (tk.name == KW_do) {
+      next_token();
+    } else {
+      panic("<do>", { First::block, Follow::block });
+    }
     do_statement();
     break;
   case KW_if:
